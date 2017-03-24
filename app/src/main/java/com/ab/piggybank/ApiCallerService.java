@@ -16,10 +16,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by Ahmad-PC on 3/25/2017.
- */
-
 public class ApiCallerService extends IntentService {
     Context context;
     public ApiCallerService() {

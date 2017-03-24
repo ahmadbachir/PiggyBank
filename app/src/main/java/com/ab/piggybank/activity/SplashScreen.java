@@ -24,8 +24,7 @@ public class SplashScreen extends AppCompatActivity {
             }
         },2000);*/
 
-        DatabaseHelper databaseHelper = new DatabaseHelper(this);
-        databaseHelper.insertTransaction(2.1,0,3,2,12,8,2017,null);
+
 
 
     }
