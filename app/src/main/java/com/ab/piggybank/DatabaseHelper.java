@@ -2,6 +2,7 @@ package com.ab.piggybank;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -22,6 +23,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PAYMENT_METHOD_ID = "PAYMENTMETHOD";
     public static final String TABLENAME_2 = "CURRENCYRATE";
     public static final String COLUMN_RATE = "RATE";
+    public static final String COLUMN_ABV = "CURRENCYABV";
+    public static final String COLUMN_CURRENCY_NAME = "CURRENCYNAME";
     public static final String TABLENAME_3 = "PAYMENTMETHODS";
     public static final String COLUMN_PAYMENT_METHOD_NAME = "METHODNAME";
     public static final String COLUMN_METHOD_TYPE = "METHODTYPE";
@@ -63,6 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS " +
                 TABLENAME_2 + " ( " +
                 COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                COLUMN_CURRENCY_NAME + " TEXT, " +
+                COLUMN_ABV + " TEXT, " +
                 COLUMN_RATE + " REAL)");
     }
 
@@ -86,7 +91,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_DATE_YEAR,year);
         contentValues.put(COLUMN_PAYMENT_METHOD_ID,paymentMethod);
         db.insertOrThrow(TABLENAME_1,null,contentValues);
+    }
 
+    public Cursor getCurrencyRateAlphabetized(){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(false,TABLENAME_2,null,null,null,null,null,COLUMN_CURRENCY_NAME + " ASC",null);
+        return cursor;
+    }
+    public void insertCurrencyTable(double rate,String name,String abv){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_RATE,rate);
+        contentValues.put(COLUMN_ABV,abv);
+        contentValues.put(COLUMN_CURRENCY_NAME,name);
+        db.insert(TABLENAME_2,null,contentValues);
+    }
+    public void updateCurrencyTable(int row,double rate){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_RATE,rate);
+        db.update(TABLENAME_2,contentValues,COLUMN_ID + " = " + row,null);
     }
 
 
