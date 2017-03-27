@@ -510,7 +510,19 @@ public class Quotes {
     @SerializedName("USDZMW")
     @Expose
     private double ZMW;
+
+    public double getZWL() {
+        return ZWL;
+    }
+
+    public void setZWL(double ZWL) {
+        this.ZWL = ZWL;
+    }
+
     @SerializedName("USDZWL")
+    @Expose
+    private double ZWL;
+
 
     public double getAED() {
         return AED;

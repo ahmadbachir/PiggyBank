@@ -1,8 +1,15 @@
 <resources>
     <string name="app_name">PiggyBank</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="surver_not_working">Unfortunately, PiggyBank couldn\'t retreive currency rates from the surver, due to that you won\'t be able to convert the currency of your transactions. If this keeps happening, please contact the developer in the about section.</string>
     <string name="no_internet_in_session">Because you are not connected to the internet, currency conversion is disabled for this session.</string>
+    <string name="take_control_wallet">Get ready to take control of your wallet.</string>
+    <string name="keep_track">With me, you will never lose track of your spending.</string>
+    <string name="your_accountant">I am going to be your personal accountant.</string>
+    <string name="i_am_piggybank">Hi, I am PiggyBank.</string>
+    <string name="with_my_help">With my help</string>
+    <string name="close_to_financial_goals">You will be closer to your financial goals than ever!</string>
+    <string name="why_wait">What are you waiting for?</string>
+    <string name="get_started">Become the champion of your wallet, tap the next button to get started.</string>
     <string-array name="currency_abv">
         <item>AED</item>
         <item>AFN</item>
@@ -157,6 +164,7 @@
         <item>YER</item>
         <item>ZAR</item>
         <item>ZMW</item>
+        <item>ZWL</item>
 
     </string-array>
 
@@ -314,6 +322,38 @@
         <item>Yemeni Rial</item>
         <item>South African Rand</item>
         <item>Zambian Kwacha</item>
-   </string-array>
+        <item>Zimbabwean Dollar</item>
+    </string-array>
+    <string name="title_activity_setup">setupActivity</string>
+    <string name="create_payment_method">Create your payment method</string>
+    <string name="payment_method_name">Payment method name</string>
+    <string name="payment_method_type">Payment method type</string>
+    <string name="choose_payment_method">Choose Payment Method</string>
+    <string name="cancel">Cancel</string>
+    <string name="how_do_you_usually_pay">How do you usually pay?</string>
+    <string name="tap_the_info_button_below_to_know_why">Tap the info button below to know why we\'re asking.</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="cash">Cash</string>
+    <string name="done">Done</string>
+    <string name="why_we_are_asking">Don\'t worry, you are not going to pay for anything using this app. The payment methods you add are going to be used for sorting purposes.</string>
+    <string name="warning">Warning!</string>
+    <string name="no">No</string>
+    <string name="no_methods_you_want_to_proceed">You don\'t seem to have added any payment methods other than cash, are you sure you want to proceed?</string>
+    <string name="yes">Yes</string>
+
+    <string-array name="paymentMethodNames">
+        <item>Visa (Credit)</item>
+        <item>Visa (Debit)</item>
+        <item>MasterCard (Credit)</item>
+        <item>MasterCard (Debit)</item>
+        <item>Google Wallet</item>
+        <item>Paypal</item>
+        <item>Cheque</item>
+        <item>Apple Pay</item>
+        <item>Discover</item>
+        <item>Wire Transfer</item>
+        <item>Other</item>
+    </string-array>
 
 </resources>

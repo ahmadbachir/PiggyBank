@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 0;
+    public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "PiggyBank.db";
     public static final String TABLENAME_1 = "TRANSACTIONS";
     public static final String COLUMN_ID = "ID";
@@ -28,6 +30,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLENAME_3 = "PAYMENTMETHODS";
     public static final String COLUMN_PAYMENT_METHOD_NAME = "METHODNAME";
     public static final String COLUMN_METHOD_TYPE = "METHODTYPE";
+    public static final String COLUMN_METHOD_TYPE_AFTER_SORT = "TYPEAFTERSORT";
+    public static final String COLUMN_METHOD_USABLE = "ISUSABLE";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -76,6 +80,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 TABLENAME_3 + " ( " +
                 COLUMN_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_PAYMENT_METHOD_NAME + " TEXT, " +
+                COLUMN_METHOD_TYPE_AFTER_SORT + " INTEGER, " +
+                COLUMN_METHOD_USABLE + " NUMERIC, " +
                 COLUMN_METHOD_TYPE + " INTEGER)");
     }
 
@@ -111,6 +117,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_RATE,rate);
         db.update(TABLENAME_2,contentValues,COLUMN_ID + " = " + row,null);
+    }
+
+    public Cursor getMethodTable(){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_3,null,null,null,null,null,null,null);
+        return cursor;
+    }
+
+    public void insertPaymentMethods(String name, int posAfterSort, int type){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_PAYMENT_METHOD_NAME,name);
+        contentValues.put(COLUMN_METHOD_TYPE,type);
+        contentValues.put(COLUMN_METHOD_TYPE_AFTER_SORT,posAfterSort);
+        contentValues.put(COLUMN_METHOD_USABLE,1);
+        db.insert(TABLENAME_3,null,contentValues);
     }
 
 
