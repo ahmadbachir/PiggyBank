@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -30,6 +30,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ab.piggybank.activity.ChooseCountryActivity;
 import com.ab.piggybank.DatabaseHelper;
 import com.ab.piggybank.R;
 import com.ab.piggybank.Utils;
@@ -44,8 +45,6 @@ import java.util.List;
 
 public class setupActivity extends AppCompatActivity implements paymentMethodReturner {
     ArrayList<PaymentMethod> paymentMethods = new ArrayList<>();
-
-    //TODO add insert the database method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,8 +123,8 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
 
                             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(setupActivity.this);
                             if (preferences.getInt("country", 0) == 0){
-                                //TODO add intent to country activity
-                                //Intent i =
+                                Intent i = new Intent(setupActivity.this, ChooseCountryActivity.class);
+                                startActivity(i);
                             }
                             else {
                                 Intent i = new Intent(setupActivity.this, MainActivity.class);
@@ -154,8 +153,8 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(setupActivity.this);
                     if (preferences.getInt("country", 0) == 0){
-                        //TODO add intent to country activity
-                        //Intent i =
+                        Intent i = new Intent(setupActivity.this, ChooseCountryActivity.class);
+                        startActivity(i);
                     }
                     else {
                         Intent i = new Intent(setupActivity.this, MainActivity.class);
@@ -200,7 +199,8 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                 TextView subText = (TextView) convertView.findViewById(R.id.item_subText);
                 subText.setText(setupActivity.this.getResources().getStringArray(R.array.paymentMethodNames)[paymentMethods.get(position).getPosAfterSort()]);
                 ImageView icon = (ImageView) convertView.findViewById(R.id.item_icon);
-                icon.setImageResource(utils.paymentMethodIcons()[paymentMethods.get(position).getPosAfterSort()]);
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(),utils.paymentMethodIcons()[paymentMethods.get(position).getPosAfterSort()]);
+                icon.setImageBitmap(Bitmap.createScaledBitmap(bitmap,120,120,false));
             }
             return convertView;
         }
@@ -322,7 +322,7 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
 
             @NonNull
             @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 View view;
                 if (position == 0) {
                     view = LayoutInflater.from(getActivity()).inflate(android.R.layout.simple_list_item_1, parent, false);
@@ -330,8 +330,15 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                     name.setText(methodTypes.get(position).getName());
                 } else {
                     view = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_text_and_pic, parent, false);
-                    ImageView icon = (ImageView) view.findViewById(R.id.item_icon);
-                    icon.setImageResource(methodTypes.get(position).getPicId());
+                    final ImageView icon = (ImageView) view.findViewById(R.id.item_icon);
+
+                    icon.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), methodTypes.get(position).getPicId());
+                            icon.setImageBitmap(Bitmap.createScaledBitmap(bitmap,120,120,false));
+                        }
+                    });
                     TextView name = (TextView) view.findViewById(R.id.item_text);
                     name.setText(methodTypes.get(position).getName());
                 }
@@ -339,7 +346,7 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
             }
 
             @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            public View getDropDownView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 View view;
                 if (position == 0) {
                     view = LayoutInflater.from(getActivity()).inflate(android.R.layout.simple_list_item_1, parent, false);
@@ -347,8 +354,14 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                     name.setText(methodTypes.get(position).getName());
                 } else {
                     view = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_text_and_pic, parent, false);
-                    ImageView icon = (ImageView) view.findViewById(R.id.item_icon);
-                    icon.setImageResource(methodTypes.get(position).getPicId());
+                    final ImageView icon = (ImageView) view.findViewById(R.id.item_icon);
+                    icon.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(),methodTypes.get(position).getPicId());
+                            icon.setImageBitmap(Bitmap.createScaledBitmap(bitmap,120,120,false));
+                        }
+                    });
                     TextView name = (TextView) view.findViewById(R.id.item_text);
                     name.setText(methodTypes.get(position).getName());
                 }

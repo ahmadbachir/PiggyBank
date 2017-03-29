@@ -213,16 +213,15 @@ public class ApiCallerService extends IntentService {
                                 b.getZMW(),
                                 b.getZWL()};
                             DatabaseHelper dbhelper = new DatabaseHelper(ApiCallerService.this);
-                            String[] names = ApiCallerService.this.getResources().getStringArray(R.array.currencyName);
-                            String[] abv = ApiCallerService.this.getResources().getStringArray(R.array.currency_abv);
-                            if (dbhelper.getCurrencyRateAlphabetized().getCount() != 0) {
+
+                            if (dbhelper.getCurrencyRate().getCount() != 0) {
                                 for (int i = 0; i < doubles.length; i++) {
                                     dbhelper.updateCurrencyTable(i + 1, doubles[i]);
                                 }
 
                             } else {
                                 for (int i = 0; i < doubles.length; i++) {
-                                    dbhelper.insertCurrencyTable(doubles[i], names[i], abv[i]);
+                                    dbhelper.insertCurrencyTable(doubles[i]);
                                 }
                             }
                             preferences.edit().putString("datestamp", calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.MONTH) + "-" + calendar.get(Calendar.YEAR)).apply();
@@ -244,7 +243,7 @@ public class ApiCallerService extends IntentService {
 
             } else {
                 DatabaseHelper dbhelper = new DatabaseHelper(ApiCallerService.this);
-                if (dbhelper.getCurrencyRateAlphabetized().getCount() != 0) {
+                if (dbhelper.getCurrencyRate().getCount() != 0) {
                     preferences.edit().putString("datestamp", calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.MONTH) + "-" + calendar.get(Calendar.YEAR)).apply();
                 } else {
                     preferences.edit().putBoolean("currency_on", false).apply();

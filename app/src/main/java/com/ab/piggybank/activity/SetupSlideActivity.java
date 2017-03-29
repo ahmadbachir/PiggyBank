@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import com.ab.piggybank.DatabaseHelper;
 import com.ab.piggybank.R;
 import com.ab.piggybank.activity.setup1.setupActivity;
 
@@ -50,8 +51,20 @@ public class SetupSlideActivity extends MaterialIntroActivity {
     public void onFinish() {
         super.onFinish();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Intent i = new Intent(this,setupActivity.class);
-        preferences.edit().putBoolean("finishedsetupslide",true).apply();
-        startActivity(i);
+        DatabaseHelper databaseHelper = new DatabaseHelper(this);
+        if (databaseHelper.getMethodTable().getCount() == 0) {
+            Intent i = new Intent(this, setupActivity.class);
+            startActivity(i);
+        }
+        else if(preferences.getInt("country",-1) == -1) {
+            Intent i = new Intent(this, ChooseCountryActivity.class);
+            startActivity(i);
+        }
+        else {
+            Intent i = new Intent(this,MainActivity.class);
+            startActivity(i);
+        }
+        preferences.edit().putBoolean("finishedsetupslide", true).apply();
+
     }
 }

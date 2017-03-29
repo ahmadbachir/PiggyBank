@@ -355,5 +355,18 @@
         <item>Wire Transfer</item>
         <item>Other</item>
     </string-array>
+    <string name="title_activity_choose_country">ChooseCountryActivity</string>
+    <string name="almost_done">Almost done...</string>
+    <string name="please_choose_the_country_or_region_with_the_currency_you_use">Please choose the currency you use.</string>
+    <string name="tap_me_to_choose_your_currency">Tap me to choose your currency.</string>
+    <string name="search_for_your_currency_here">Search for your currency here.</string>
+    <string name="go_ahead_choose_currency">Go ahead choose and your currency.</string>
+    <string name="letter_to_go">Letters to go</string>
+    <string name="more_letter_to_go">More letter to go</string>
+    <string name="are_you_sure">Are You Sure?</string>
+    <string name="sure_currency_choose"> as your default currency? </string>
+    <string name="You_will_not_be_to_change">You will not be able to change it for now.</string>
+    <string name="Are_you_sure_you_want_to_proceed_with">Are you sure you want to proceed with</string>
+    <string name="dont_worry">Don\'t worry you can convert your transactions.</string>
 
 </resources>
