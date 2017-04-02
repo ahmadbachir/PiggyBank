@@ -368,5 +368,12 @@
     <string name="You_will_not_be_to_change">You will not be able to change it for now.</string>
     <string name="Are_you_sure_you_want_to_proceed_with">Are you sure you want to proceed with</string>
     <string name="dont_worry">Don\'t worry you can convert your transactions.</string>
+    <string name="title_activity_add_transaction">Add A Transaction</string>
+    <string name="flag">Flag</string>
+    <string name="title_activity_calculator">Calculator</string>
+    <string name="add_your_amount">Please add your amount</string>
+    <string name="add_amount_to_proceed">You need to add an amount to proceed.</string>
+    <string name="complete_ur_operation">Please complete your operation.</string>
+    <string name="current_amount_is">Current amount is:</string>
 
 </resources>

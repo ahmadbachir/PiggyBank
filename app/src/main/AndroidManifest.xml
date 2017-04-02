@@ -50,7 +50,22 @@
             android:name=".activity.ChooseCountryActivity"
             android:exported="true"
             android:label="@string/title_activity_choose_country"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.AddTransactionActivity"
+            android:exported="true"
+            android:label="@string/title_activity_add_transaction"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Calculator"
+            android:exported="true"
+            android:label="@string/title_activity_calculator"
             android:theme="@style/AppTheme"/>
+
     </application>
 
 </manifest>
