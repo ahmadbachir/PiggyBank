@@ -129,6 +129,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLENAME_2, contentValues, COLUMN_ID + " = " + row, null);
     }
 
+    public String getABVENGString(int id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_4,new String[]{COLUMN_ABV}, COLUMN_ID + " = " + id,null,null,null,null);
+        cursor.moveToPosition(0);
+        return cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ABV));
+    }
+
+    public Cursor getABVEng(){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_4,new String[]{COLUMN_ID,COLUMN_ABV},null,null,null,null,COLUMN_ABV  +" ASC");
+        return cursor;
+    }
+
     public Cursor getMethodTable() {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_3, null, null, null, null, null, null, null);

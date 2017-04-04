@@ -375,5 +375,124 @@
     <string name="add_amount_to_proceed">You need to add an amount to proceed.</string>
     <string name="complete_ur_operation">Please complete your operation.</string>
     <string name="current_amount_is">Current amount is:</string>
+    <string name="amount_too_big">The amount you added seems too big, are you sure you want to proceed?</string>
+    <string name="k">K</string>
+    <string name="mn">Mn</string>
+    <string name="date">Date</string>
+    <string name="today">Today</string>
+    <string name="title_activity_category">Choose A Category</string>
+    <string name="expense">Expense</string>
+    <string name="income">Income</string>
+    <string name="tap_me_to_choose_a_category">Tap me to choose a category.</string>
+    <string name="amount_needs_to_more_than_zero">Amount should be more than zero.</string>
+    <string name="need_to_choose_a_category">You need to choose a category to proceed.</string>
+
+    <string-array name="expenseGroups">
+        <item>Gifts</item>
+        <item>Charity</item>
+        <item>Food</item>
+        <item>Shelter</item>
+        <item>Bills</item>
+        <item>Clothing</item>
+        <item>Transportation</item>
+        <item>Medical</item>
+        <item>Insurance</item>
+        <item>HouseHold Supplies</item>
+        <item>Personal</item>
+        <item>Debt Reduction</item>
+        <item>Retirement</item>
+        <item>Education</item>
+        <item>Savings</item>
+        <item>Leisure</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="foodChildren">
+        <item>Groceries</item>
+        <item>Restaurants</item>
+        <item>Pet Food</item>
+    </string-array>
+    <string-array name="shelterChildren">
+        <item>Mortgage</item>
+        <item>Rent</item>
+        <item>Property Taxes</item>
+        <item>Household Repairs</item>
+    </string-array>
+
+    <string-array name="billsChildren">
+        <item>Electric Bill</item>
+        <item>Water Bill</item>
+        <item>Phone Bill</item>
+        <item>Cable Bill</item>
+        <item>Internet Bill</item>
+    </string-array>
+
+    <string-array name="transportationChildren">
+        <item>Fuel</item>
+        <item>Public Transport</item>
+        <item>Oil Changes</item>
+        <item>Parking Fees</item>
+        <item>Repairs</item>
+        <item>DMV Fees</item>
+
+    </string-array>
+
+    <string-array name="medicalChildren">
+        <item>Doctor\'s Visit</item>
+        <item>Dental Care</item>
+        <item>Specialty Care</item>
+        <item>Medication</item>
+        <item>Medical Devices</item>
+    </string-array>
+    <string-array name="insuranceChildren">
+        <item>Health Insurance</item>
+        <item>Homeowner\'s Insurance</item>
+        <item>Renter\'s Insurance</item>
+        <item>Auto Insurance</item>
+        <item>Life Insurance</item>
+        <item>Disability Insurance</item>
+    </string-array>
+    <string-array name="personalChildren">
+        <item>Gym Membership</item>
+        <item>Hair Cuts</item>
+        <item>Salon Services</item>
+        <item>Cosmetics</item>
+        <item>Babysitter</item>
+        <item>Child Support</item>
+    </string-array>
+    <string-array name="debtReductionChildren">
+        <item>Mortgage Payment</item>
+        <item>Credit Card Payment</item>
+        <item>Personal Loan Payment</item>
+        <item>Student Loan Payment</item>
+    </string-array>
+    <string-array name="retirementChildren">
+        <item>Financial Planning</item>
+        <item>Investing</item>
+    </string-array>
+    <string-array name="educationChildren">
+        <item>College</item>
+        <item>School Supplies</item>
+        <item>Books</item>
+        <item>Conferences</item>
+    </string-array>
+    <string-array name="savingsChildren">
+        <item>Emergency Fund</item>
+    </string-array>
+    <string-array name="leisureChildren">
+        <item>Hanging Out</item>
+        <item>Games</item>
+        <item>Vacations</item>
+        <item>Entertainment Subscriptions</item>
+        <item>Shopping</item>
+    </string-array>
+
+    <string-array name="incomeGroups">
+        <item>Salary</item>
+        <item>Interest Received</item>
+        <item>Dividend</item>
+        <item>Business Income</item>
+        <item>Pension</item>
+    </string-array>
 
 </resources>

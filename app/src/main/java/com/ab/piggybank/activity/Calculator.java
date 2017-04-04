@@ -1,12 +1,12 @@
-package com.ab.piggybank;
+package com.ab.piggybank.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ab.piggybank.activity.AddTransactionActivity;
+import com.ab.piggybank.R;
 
 import java.text.DecimalFormat;
 import java.util.Locale;
@@ -274,14 +274,40 @@ public class Calculator extends AppCompatActivity {
             }
             return;
         }
-        Intent i = new Intent(this, AddTransactionActivity.class);
-        if (getIntent().getExtras() != null) {
-            i.putExtras(getIntent().getExtras());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.warning);
+        builder.setMessage(R.string.amount_too_big);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent i = new Intent(Calculator.this, AddTransactionActivity.class);
+                if (getIntent().getExtras() != null) {
+                    i.putExtras(getIntent().getExtras());
+                }
+                i.putExtra("calc", true);
+                i.putExtra("amount", amount);
+                startActivity(i);
+                finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        if (amount > 100000) {
+            builder.show();
+        } else {
+            Intent i = new Intent(this, AddTransactionActivity.class);
+            if (getIntent().getExtras() != null) {
+                i.putExtras(getIntent().getExtras());
+            }
+            i.putExtra("calc", true);
+            i.putExtra("amount", amount);
+            startActivity(i);
+            finish();
         }
-        i.putExtra("calc", true);
-        i.putExtra("amount", amount);
-        startActivity(i);
-        finish();
-    }
+        }
 
-}
+    }

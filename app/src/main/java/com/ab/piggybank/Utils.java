@@ -1,5 +1,11 @@
 package com.ab.piggybank;
 
+import android.content.Context;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 /**
  * Created by Ahmad-PC on 3/25/2017.
  */
@@ -15,4 +21,291 @@ public class Utils {
         int[] ids = {R.drawable.visa_pay_logo,R.drawable.visa_pay_logo,R.drawable.master_card,R.drawable.master_card,R.drawable.google_wallet,R.drawable.paypal_logo,R.drawable.cheque,R.drawable.apple,R.drawable.discover,R.drawable.wire_transfer_logo,R.drawable.question_mark};
         return ids;
     }
+
+    public ArrayList<ArrayList<TransactionCategory>> categoryGroups(Context context){
+        ArrayList<ArrayList<TransactionCategory>> categoryGroups = new ArrayList<>();
+        categoryGroups.add(expenseGroups(context));
+        categoryGroups.add(incomeGroups(context));
+        return categoryGroups;
+    }
+
+    public ArrayList<TransactionCategory> expenseGroups(Context context){
+        ArrayList<TransactionCategory> transactionCategories = new ArrayList<>();
+        transactionCategories.add(gift(context));
+        transactionCategories.add(charity(context));
+        transactionCategories.add(food(context));
+        transactionCategories.add(shelter(context));
+        transactionCategories.add(bills(context));
+        transactionCategories.add(clothing(context));
+        transactionCategories.add(transportation(context));
+        transactionCategories.add(medical(context));
+        transactionCategories.add(insurance(context));
+        transactionCategories.add(personal(context));
+        transactionCategories.add(debtReduction(context));
+        transactionCategories.add(retirement(context));
+        transactionCategories.add(education(context));
+        transactionCategories.add(savings(context));
+        transactionCategories.add(leisure(context));
+        Collections.sort(transactionCategories, new Comparator<TransactionCategory>() {
+            @Override
+            public int compare(TransactionCategory o1, TransactionCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        transactionCategories.add(new TransactionCategory(16,new ArrayList<TransactionSubCategory>(),context.getResources().getStringArray(R.array.expenseGroups)[16],R.drawable.question_mark));
+        return transactionCategories;
+    }
+
+    public TransactionCategory gift(Context context){
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[0];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        TransactionCategory transactionCategory = new TransactionCategory(0,transactionSubCategories,name,R.drawable.giftbox);
+        return transactionCategory;
+    }
+
+    public TransactionCategory charity(Context context){
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[1];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        TransactionCategory transactionCategory = new TransactionCategory(1,transactionSubCategories,name,R.drawable.charity);
+        return transactionCategory;
+    }
+    public TransactionCategory food(Context context){
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[2];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.foodChildren);
+        int[] pics = {R.drawable.grocery,R.drawable.chef,R.drawable.bones};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(2,transactionSubCategories,name,R.drawable.cutlery);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory shelter(Context context){
+        int catId = 3;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.shelterChildren);
+        int[] pics = {R.drawable.mortgage_loan,R.drawable.rent,R.drawable.tax,R.drawable.tools};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.home);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory bills(Context context){
+        int catId = 4;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.billsChildren);
+        int[] pics = {R.drawable.light_bulb,R.drawable.faucet,R.drawable.phone,R.drawable.television,R.drawable.wifi};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.bill);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory clothing(Context context){
+        int catId= 5;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.shirt);
+        return transactionCategory;
+    }
+    public TransactionCategory transportation(Context context){
+        int catId = 6;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.transportationChildren);
+        int[] pics = {R.drawable.gasoline_pump,R.drawable.bus,R.drawable.car_oil,R.drawable.parking,R.drawable.tools,R.drawable.papers};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.car);
+        return transactionCategory;
+    }
+    public TransactionCategory medical(Context context){
+        int catId = 7;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.medicalChildren);
+        int[] pics = {R.drawable.nurse,R.drawable.dentist,R.drawable.microscope,R.drawable.pill,R.drawable.plaster};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.hospital);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory insurance(Context context){
+        int catId = 8;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.insuranceChildren);
+        int[] pics = {R.drawable.hospital,R.drawable.home,R.drawable.rent,R.drawable.car,R.drawable.pulse,R.drawable.wheelchair};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.shield);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory personal(Context context){
+        int catId = 10;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.personalChildren);
+        int[] pics = {R.drawable.dumbbell,R.drawable.hairdressing,R.drawable.hairdryer,R.drawable.mascara,R.drawable.baby_stroller,R.drawable.smiling_baby};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.user);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory debtReduction(Context context){
+        int catId = 11;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.debtReductionChildren);
+        int[] pics = {R.drawable.mortgage_loan,R.drawable.credit_card,R.drawable.cheque,R.drawable.tuition};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.loss);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory retirement(Context context){
+        int catId = 12;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.retirementChildren);
+        int[] pics = {R.drawable.planning,R.drawable.investment};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.retirement);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory education(Context context){
+        int catId = 13;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.educationChildren);
+        int[] pics = {R.drawable.mortarboard,R.drawable.school_supplies,R.drawable.notebook,R.drawable.lecture};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.school);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory savings(Context context){
+        int catId = 14;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.savingsChildren);
+        int[] pics = {R.drawable.siren};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.piggy_bank);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+    public TransactionCategory leisure(Context context){
+        int catId = 15;
+        String name = context.getResources().getStringArray(R.array.expenseGroups)[catId];
+        ArrayList<TransactionSubCategory> transactionSubCategories = new ArrayList<>();
+        String[] children = context.getResources().getStringArray(R.array.leisureChildren);
+        int[] pics = {R.drawable.pedestrian,R.drawable.game,R.drawable.vacation,R.drawable.mask,R.drawable.shopping_bag};
+        for (int i = 0;i < children.length; i++){
+            transactionSubCategories.add(new TransactionSubCategory(i,children[i],pics[i]));
+        }
+        TransactionCategory transactionCategory = new TransactionCategory(catId,transactionSubCategories,name,R.drawable.smile);
+        Collections.sort(transactionSubCategories, new Comparator<TransactionSubCategory>() {
+            @Override
+            public int compare(TransactionSubCategory o1, TransactionSubCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+        return transactionCategory;
+    }
+
+    public ArrayList<TransactionCategory> incomeGroups(Context context){
+        ArrayList<TransactionCategory> incomeGroups = new ArrayList<>();
+        String[] names = context.getResources().getStringArray(R.array.incomeGroups);
+        int[] pics = {R.drawable.cheque,R.drawable.bill,R.drawable.dividend,R.drawable.profits,R.drawable.retirement};
+        for (int i = 0; i < names.length;i++){
+            incomeGroups.add(new TransactionCategory(i,new ArrayList<TransactionSubCategory>(),names[i],pics[i]));
+        }
+
+        Collections.sort(incomeGroups, new Comparator<TransactionCategory>() {
+            @Override
+            public int compare(TransactionCategory o1, TransactionCategory o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
+
+        return  incomeGroups;
+    }
+
+
+
+
+
 }
