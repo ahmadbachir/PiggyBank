@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,7 +56,8 @@ public class AddTransactionActivity extends AppCompatActivity {
     int cat = -1;
     int subCat = -1;
     int spinnerPos = 0;
-
+    boolean editing = false;
+    long id = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +99,11 @@ public class AddTransactionActivity extends AppCompatActivity {
                 if (isExpense()) {
                     i.putExtra("isExpense", isExpense());
                 }
+                i.putExtra("editing", editing);
+                if(id != 0){
+                    i.putExtra("id",id);
+                }
+
                 i.putExtra("spinnerPos", spinner.getSelectedItemPosition());
                 startActivity(i);
             }
@@ -129,6 +136,12 @@ public class AddTransactionActivity extends AppCompatActivity {
                 }
                 if (isExpense()) {
                     i.putExtra("isExpense", isExpense());
+                }
+                if (editing) {
+                    i.putExtra("editing", editing);
+                }
+                if(id != 0){
+                    i.putExtra("id",id);
                 }
 
                 i.putExtra("spinnerPos", spinner.getSelectedItemPosition());
@@ -180,12 +193,12 @@ public class AddTransactionActivity extends AppCompatActivity {
         public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder viewHolder = (ViewHolder) view.getTag();
             viewHolder.name.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_NAME)));
-            if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE)) != -1) {
+            if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT)) != -1) {
                 if (viewHolder.type.getVisibility() == View.GONE) {
                     viewHolder.type.setVisibility(View.VISIBLE);
                     viewHolder.name.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 }
-                viewHolder.type.setText(context.getResources().getStringArray(R.array.paymentMethodNames)[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE))]);
+                viewHolder.type.setText(context.getResources().getStringArray(R.array.paymentMethodNames)[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]);
             } else {
                 viewHolder.type.setVisibility(View.GONE);
                 viewHolder.name.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -222,6 +235,8 @@ public class AddTransactionActivity extends AppCompatActivity {
             default:
                 currencyTextView.setText(dbHelper.getABVENGString(preferences.getInt("country", 1)));
         }
+        editing = getIntent().getBooleanExtra("editing", false);
+        id = getIntent().getLongExtra("id", 0);
         amount = getIntent().getDoubleExtra("amount", 0.0);
         TextView amountText = (TextView) findViewById(R.id.amount_text);
         String amountString;
@@ -233,6 +248,7 @@ public class AddTransactionActivity extends AppCompatActivity {
             DecimalFormat decimalFormat = new DecimalFormat("#.##");
             amountString = decimalFormat.format(amount);
         }
+
         amountText.setText(amountString);
         if (getIntent().getIntExtra("day", -1) != -1) {
             calendar.set(getIntent().getIntExtra("year", 0), getIntent().getIntExtra("month", 0), getIntent().getIntExtra("day", 0));
@@ -243,6 +259,9 @@ public class AddTransactionActivity extends AppCompatActivity {
             cat = getIntent().getIntExtra("cat", -1);
             subCat = getIntent().getIntExtra("subCat", -1);
             updateCategoryView();
+        }
+        if (getIntent().getStringExtra("spinnerPos") != null) {
+            spinnerPos = Integer.valueOf(getIntent().getStringExtra("spinnerPos"));
         }
         updateMethodSpinnerStatus();
     }
@@ -334,9 +353,9 @@ public class AddTransactionActivity extends AppCompatActivity {
         Cursor cursor = dbHelper.getMethodTable();
         cursor.moveToPosition(pos);
         Utils utils = new Utils();
-        if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE)) != -1) {
+        if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT)) != -1) {
 
-            icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.paymentMethodIcons()[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE))]), 120, 120, false));
+            icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.paymentMethodIcons()[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]), 120, 120, false));
         } else {
             icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.cash), 120, 120, false));
         }
@@ -355,13 +374,20 @@ public class AddTransactionActivity extends AppCompatActivity {
             return;
         }
         DatabaseHelper dbHelper = new DatabaseHelper(this);
-        if (isExpense()) {
-            dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinnerPos));
+        if (!editing) {
+            if (isExpense()) {
+                dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinnerPos));
+            } else {
+                dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), null);
+            }
+        } else {
+            if (isExpense()) {
+                dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinnerPos));
+            } else {
+                dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), null);
+            }
         }
-        else {
-            dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), null);
-        }
-        Intent i = new Intent(this,MainActivity.class);
+        Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
         finish();
     }

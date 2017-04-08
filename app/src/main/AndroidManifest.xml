@@ -69,7 +69,11 @@
             android:name=".Category"
             android:exported="true"
             android:label="@string/title_activity_category"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".DetailTransaction"
+            android:label="@string/title_activity_detail_transaction"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

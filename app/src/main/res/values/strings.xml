@@ -386,6 +386,9 @@
     <string name="tap_me_to_choose_a_category">Tap me to choose a category.</string>
     <string name="amount_needs_to_more_than_zero">Amount should be more than zero.</string>
     <string name="need_to_choose_a_category">You need to choose a category to proceed.</string>
+    <string name="week">Week</string>
+    <string name="you_didn_t_add_any_transactios_this_month">You didn\'t add any transactios this month.</string>
+    <string name="what_would_you_like_to_do">What would you like to do?</string>
 
     <string-array name="expenseGroups">
         <item>Gifts</item>
@@ -494,5 +497,13 @@
         <item>Business Income</item>
         <item>Pension</item>
     </string-array>
+    <string name="title_activity_detail_transaction">DetailTransaction</string>
+    <string name="expense_or_income">Expense or income?</string>
+    <string name="how_much">How much?</string>
+    <string name="what_was_the_transaction">What was the transaction?</string>
+    <string name="transaction_number">Transaction number:</string>
+    <string name="was_paid_for_using">Was paid for using:</string>
+    <string name="when">When:</string>
+    <string name="transaction">Transaction</string>
 
 </resources>
