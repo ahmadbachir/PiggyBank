@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.ab.piggybank.activity.MainActivity">
@@ -16,9 +17,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:titleTextColor="#424242"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
             app:subtitleTextColor="#424242"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:titleTextColor="#424242" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/main_tablayout"
@@ -34,12 +35,46 @@
 
     <include layout="@layout/content_main" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_action_name" />
+    <ImageView
+        android:id="@+id/mainActivityOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        app:srcCompat="@android:color/white" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/mainFloatingActionMenu"
+            android:layout_width="wrap_content"
+            app:menu_colorNormal="@color/colorAccent"
+            app:fab_showAnimation="@anim/fade_in"
+            app:fab_hideAnimation="@anim/fade_out"
+            app:menu_colorPressed="@color/colorAccent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin">
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_action_add"
+                app:fab_colorNormal="@color/colorAccent"
+                app:fab_colorPressed="@color/colorAccent"
+                app:fab_label="@string/add_transaction" />
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_action_add"
+                app:fab_colorNormal="@color/colorAccent"
+                app:fab_colorPressed="@color/colorAccent"
+                app:fab_label="@string/add_debt_transactions" />
+        </com.github.clans.fab.FloatingActionMenu>
+
+    </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -505,5 +505,30 @@
     <string name="was_paid_for_using">Was paid for using:</string>
     <string name="when">When:</string>
     <string name="transaction">Transaction</string>
+    <string name="expense_day_by_day">Expenses day by day.</string>
+    <string name="income_day_by_day">Income day by day.</string>
+    <string name="income_category_percentages">Income category percentages</string>
+    <string name="expense_category_percentages">Expense category percentages</string>
+    <string name="title_activity_main_debt">MainDebtActivity</string>
+    <string name="add_transaction">Add transaction</string>
+    <string name="add_debt_relationship">Add debt relationship</string>
+    <string name="add_debt_transactions">Add debt transaction</string>
+    <string name="you_don_t_have_any_debt_relationships">You don\'t have any debt relationships</string>
+    <string name="edit_debt_relationship">Edit debt relationship</string>
+    <string name="who_do_you_have_debt_with">Who do you have debt with?</string>
+    <string name="ex_mom_dad">ex. Mom, Dad</string>
+    <string name="you_didnt_change_anything">You didn\'t change anything.</string>
+    <string name="add_name_to_proceed">You need to add a name to proceed.</string>
+    <string name="the_bank">The Bank</string>
+    <string name="nevermind">Nevermind</string>
+    <string name="title_activity_detail_debt">DetailDebtActivity</string>
+    <string name="no_debt_transactions">There are no debt transactions to show you.</string>
+    <string name="title_activity_add_debt_transaction">Add a debt transaction</string>
+    <string name="description">Description</string>
+    <string name="need_desc_to_proceed">You need to add a description to proceed.</string>
+    <string name="ingoing_or_outgoing">Ingoing or outgoing?</string>
+    <string name="ingoing">Ingoing</string>
+    <string name="outgoing">Outgoing</string>
+    <string name="choose_ingoing_outgoing">You need to choose if your transaction is ingoing or outgoing.</string>
 
 </resources>

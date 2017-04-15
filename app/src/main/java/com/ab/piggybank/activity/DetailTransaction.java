@@ -1,5 +1,6 @@
-package com.ab.piggybank;
+package com.ab.piggybank.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -24,17 +25,29 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.ab.piggybank.DatabaseHelper;
+import com.ab.piggybank.R;
+import com.ab.piggybank.Utils;
 import com.ab.piggybank.activity.AddTransactionActivity;
+import com.daimajia.easing.linear.Linear;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class DetailTransaction extends AppCompatActivity {
     long id;
     Cursor cursor;
     DatabaseHelper dbHelper = new DatabaseHelper(this);
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +56,11 @@ public class DetailTransaction extends AppCompatActivity {
         id = getIntent().getLongExtra("id", 0);
         cursor = dbHelper.getTransaction(id);
         cursor.moveToPosition(0);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -88,11 +106,11 @@ public class DetailTransaction extends AppCompatActivity {
         TextView categoryTextView = (TextView) findViewById(R.id.categoryView);
         Utils utils = new Utils();
         if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_SUBCATEGORY)) != -1) {
-            category.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),utils.categoryGroups(this).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE))).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY))).getTransactionSubCategories().get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_SUBCATEGORY))).getPicId()),120,120,false));
+            category.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.categoryGroups(this).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE))).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY))).getTransactionSubCategories().get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_SUBCATEGORY))).getPicId()), 120, 120, false));
             subCategoryTextView.setText(utils.categoryGroups(this).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE))).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY))).getTransactionSubCategories().get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_SUBCATEGORY))).getName());
             categoryTextView.setText(utils.categoryGroups(this).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE))).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY))).getName());
         } else {
-            category.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),utils.categoryGroups(this).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE))).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY))).getPicId()),120,120,false));
+            category.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.categoryGroups(this).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE))).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY))).getPicId()), 120, 120, false));
             subCategoryTextView.setText(utils.categoryGroups(this).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE))).get(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY))).getName());
             categoryTextView.setVisibility(View.GONE);
             subCategoryTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -102,24 +120,28 @@ public class DetailTransaction extends AppCompatActivity {
         if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE)) != 0) {
             LinearLayout paymentMethod = (LinearLayout) findViewById(R.id.paymentMethodLayout);
             paymentMethod.setVisibility(View.GONE);
+            TextView textView = (TextView) findViewById(R.id.textView15);
+            textView.setVisibility(View.GONE);
         } else {
             ImageView paymentMethodIcon = (ImageView) findViewById(R.id.methodIconView);
-            Cursor methodCursor = dbHelper.getUserMethod(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_ID)) + 1);
+            Cursor methodCursor = dbHelper.getUserMethod(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_ID)));
             methodCursor.moveToPosition(0);
-            if (methodCursor.getInt(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT)) != -1) {
-                paymentMethodIcon.setImageResource(utils.paymentMethodIcons()[methodCursor.getInt(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]);
-                TextView paymentMethodName = (TextView) findViewById(R.id.methodNameView);
-                paymentMethodName.setText(methodCursor.getString(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_NAME)));
-                TextView paymentMethodType = (TextView) findViewById(R.id.methodTypeView);
-                paymentMethodType.setText(getResources().getStringArray(R.array.paymentMethodNames)[methodCursor.getInt(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]);
-            } else {
-                paymentMethodIcon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.cash),120,120,false));
-                TextView paymentMethodName = (TextView) findViewById(R.id.methodNameView);
-                TextView paymentMethodType = (TextView) findViewById(R.id.methodTypeView);
-                paymentMethodName.setText(R.string.cash);
-                paymentMethodName.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-                paymentMethodName.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                paymentMethodType.setVisibility(View.GONE);
+            if (methodCursor.getCount() != 0) {
+                if (methodCursor.getInt(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT)) != -1) {
+                    paymentMethodIcon.setImageResource(utils.paymentMethodIcons()[methodCursor.getInt(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]);
+                    TextView paymentMethodName = (TextView) findViewById(R.id.methodNameView);
+                    paymentMethodName.setText(methodCursor.getString(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_NAME)));
+                    TextView paymentMethodType = (TextView) findViewById(R.id.methodTypeView);
+                    paymentMethodType.setText(getResources().getStringArray(R.array.paymentMethodNames)[methodCursor.getInt(methodCursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]);
+                } else {
+                    paymentMethodIcon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.cash), 120, 120, false));
+                    TextView paymentMethodName = (TextView) findViewById(R.id.methodNameView);
+                    TextView paymentMethodType = (TextView) findViewById(R.id.methodTypeView);
+                    paymentMethodName.setText(R.string.cash);
+                    paymentMethodName.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+                    paymentMethodName.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                    paymentMethodType.setVisibility(View.GONE);
+                }
             }
         }
     }

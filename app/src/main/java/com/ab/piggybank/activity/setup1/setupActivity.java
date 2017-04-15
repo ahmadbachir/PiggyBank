@@ -43,12 +43,24 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class setupActivity extends AppCompatActivity implements paymentMethodReturner {
     ArrayList<PaymentMethod> paymentMethods = new ArrayList<>();
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         paymentMethods.add(new PaymentMethod(getString(R.string.cash), -1, -1));
         final ListView listView = (ListView) findViewById(R.id.methodList);
         methodListAdapter listAdapter = new methodListAdapter(this, paymentMethods);

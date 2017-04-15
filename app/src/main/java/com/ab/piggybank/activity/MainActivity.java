@@ -7,10 +7,11 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -18,41 +19,63 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ab.piggybank.DatabaseHelper;
-import com.ab.piggybank.DetailTransaction;
 import com.ab.piggybank.R;
 import com.ab.piggybank.Utils;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.github.clans.fab.FloatingActionMenu;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.LargeValueFormatter;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
+import static android.view.View.GONE;
 
 public class MainActivity extends AppCompatActivity {
     Calendar calendar = Calendar.getInstance();
     ArrayList<Month> months = new ArrayList<>();
+    Boolean isActionMenuExpanded = false;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,20 +83,75 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
+        final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
+        floatingActionMenu.setOnMenuButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickMenu();
+                floatingActionMenu.toggle(true);
+            }
+        });
+        addOneYear();
+
+        com.github.clans.fab.FloatingActionButton floatingActionButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab1);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), AddTransactionActivity.class);
                 startActivity(i);
             }
         });
-        addOneYear();
+        com.github.clans.fab.FloatingActionButton floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab2);
+        floatingActionButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), MainDebtActivity.class);
+                startActivity(i);
+            }
+        });
+
         ViewPager viewPager = (ViewPager) findViewById(R.id.main_ViewPager);
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), months);
         viewPager.setAdapter(viewPagerAdapter);
+        viewPager.setOffscreenPageLimit(1);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    public void onClickMenu() {
+        if (!isActionMenuExpanded) {
+            ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
+            if(!imageView.isClickable()){
+                imageView.setClickable(true);
+            }
+            imageView.animate().alpha(0.7f).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isActionMenuExpanded) {
+                        final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
+                        ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
+                        imageView.animate().alpha(0).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+                        isActionMenuExpanded = false;
+                        floatingActionMenu.toggle(true);
+                        imageView.setClickable(false);
+                    }
+                }
+            });
+            isActionMenuExpanded = true;
+        } else {
+            ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
+            imageView.animate().alpha(0).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+            isActionMenuExpanded = false;
+            final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
+            floatingActionMenu.toggle(true);
+            imageView.setClickable(false);
+        }
     }
 
     @Override
@@ -187,9 +265,154 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
+            DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+            Cursor daysInMonthExpense = dbHelper.getDaysInMonth(getArguments().getInt("month"), getArguments().getInt("year"));
+            if (daysInMonthExpense.getCount() != 0) {
+                BarChart lineChart = (BarChart) view.findViewById(R.id.expenseBarChart);
+                List<BarEntry> entries = new ArrayList<>();
+                for (int i = 0; i < daysInMonthExpense.getCount(); i++) {
+                    entries.add(new BarEntry(daysInMonthExpense.getInt(daysInMonthExpense.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), dbHelper.sumOfExpenseTransactionsDay(daysInMonthExpense.getInt(daysInMonthExpense.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), getArguments().getInt("month"), getArguments().getInt("year"))));
+                    daysInMonthExpense.moveToNext();
+                }
+
+                BarDataSet dataSet = new BarDataSet(entries, "Amount spent");
+                dataSet.setValueTextSize(12);
+                dataSet.setHighlightEnabled(true);
+                BarData barData = new BarData(dataSet);
+                dataSet.setValueFormatter(new LargeValueFormatter());
+                dataSet.setColor(getResources().getColor(R.color.colorAccentLight));
+                lineChart.setData(barData);
+                lineChart.setTouchEnabled(false);
+                XAxis xAxis = lineChart.getXAxis();
+                xAxis.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                xAxis.setGridColor(Color.TRANSPARENT);
+                xAxis.setGranularity(1f);
+                YAxis yAxisLeft = lineChart.getAxisLeft();
+                YAxis yAxisRight = lineChart.getAxisRight();
+                yAxisLeft.setGridColor(getResources().getColor(android.R.color.tertiary_text_light));
+                yAxisRight.setGridColor(getResources().getColor(android.R.color.tertiary_text_light));
+                yAxisLeft.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                yAxisRight.setTextColor(Color.TRANSPARENT);
+                Description description = new Description();
+                description.setText(getResources().getString(R.string.expense_day_by_day));
+                description.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                description.setTextSize(12f);
+                lineChart.setDescription(description);
+                lineChart.invalidate();
+
+                PieChart pieChart = (PieChart) view.findViewById(R.id.expensePieChart);
+                List<PieEntry> pieEntries = new ArrayList<>();
+                Utils utils = new Utils();
+                for (int i = 0; i < utils.expenseGroups(getActivity()).size(); i++) {
+                    if (dbHelper.sumOfExpenseCategoryInMonth(getArguments().getInt("month"), getArguments().getInt("year"), i) != 0) {
+                        float percentage = (dbHelper.sumOfExpenseCategoryInMonth(getArguments().getInt("month"), getArguments().getInt("year"), i) / dbHelper.sumOfExponseTransactionsMonth(getArguments().getInt("month"), getArguments().getInt("year"))) * 100;
+                        pieEntries.add(new PieEntry(percentage, utils.expenseGroups(getActivity()).get(i).getName()));
+                    }
+                }
+                PieDataSet pieDataSet = new PieDataSet(pieEntries, "Categories");
+                pieDataSet.setColors(new int[]{Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E")});
+                pieDataSet.setValueTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                pieDataSet.setValueTextSize(12);
+                PieData pieData = new PieData(pieDataSet);
+                pieChart.setData(pieData);
+                pieChart.setEntryLabelColor(getResources().getColor(android.R.color.tertiary_text_light));
+                pieChart.setEntryLabelTextSize(12);
+                Description desc = new Description();
+                desc.setTextSize(0);
+                desc.setText("");
+                pieChart.setDescription(desc);
+                pieChart.setUsePercentValues(true);
+                pieChart.setCenterText(getResources().getString(R.string.expense_category_percentages));
+                pieChart.invalidate();
+
+            } else {
+                BarChart lineChart = (BarChart) view.findViewById(R.id.expenseBarChart);
+                lineChart.setVisibility(GONE);
+                PieChart pieChart = (PieChart) view.findViewById(R.id.expensePieChart);
+                pieChart.setVisibility(GONE);
+                TextView textView = (TextView) view.findViewById(R.id.textView8);
+                textView.setVisibility(GONE);
+                TextView textView1 = (TextView) view.findViewById(R.id.textView9);
+                textView1.setVisibility(GONE);
+
+            }
+            daysInMonthExpense.close();
+            Cursor daysInMonthIncome = dbHelper.getDaysInMonthIncome(getArguments().getInt("month"), getArguments().getInt("year"));
+            if (daysInMonthIncome.getCount() != 0) {
+                BarChart lineChart = (BarChart) view.findViewById(R.id.incomeBarChart);
+                List<BarEntry> entries = new ArrayList<>();
+
+                for (int i = 0; i < daysInMonthIncome.getCount(); i++) {
+                    entries.add(new BarEntry(daysInMonthIncome.getInt(daysInMonthIncome.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), dbHelper.sumOfIncomeTransactionsDay(daysInMonthIncome.getInt(daysInMonthIncome.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), getArguments().getInt("month"), getArguments().getInt("year"))));
+                    daysInMonthIncome.moveToNext();
+                }
+
+                BarDataSet dataSet = new BarDataSet(entries, "Amount earned");
+                dataSet.setValueTextSize(12);
+                dataSet.setHighlightEnabled(true);
+                BarData barData = new BarData(dataSet);
+                dataSet.setValueFormatter(new LargeValueFormatter());
+                dataSet.setColor(getResources().getColor(R.color.colorAccentLight));
+                lineChart.setData(barData);
+                lineChart.setTouchEnabled(false);
+                XAxis xAxis = lineChart.getXAxis();
+                xAxis.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                xAxis.setGridColor(Color.TRANSPARENT);
+                xAxis.setGranularity(1f);
+                YAxis yAxisLeft = lineChart.getAxisLeft();
+                YAxis yAxisRight = lineChart.getAxisRight();
+                yAxisLeft.setGridColor(getResources().getColor(android.R.color.tertiary_text_light));
+                yAxisRight.setGridColor(getResources().getColor(android.R.color.tertiary_text_light));
+                yAxisLeft.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                yAxisLeft.setGranularity(1f);
+                yAxisRight.setTextColor(Color.TRANSPARENT);
+                Description description = new Description();
+                description.setText(getResources().getString(R.string.income_day_by_day));
+                description.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                description.setTextSize(12f);
+                lineChart.setDescription(description);
+                lineChart.invalidate();
+
+                PieChart pieChart = (PieChart) view.findViewById(R.id.incomePieChart);
+                List<PieEntry> pieEntries = new ArrayList<>();
+                Utils utils = new Utils();
+                for (int i = 0; i < utils.incomeGroups(getActivity()).size(); i++) {
+                    if (dbHelper.sumOfIncomeCategoryInMonth(getArguments().getInt("month"), getArguments().getInt("year"), i) != 0) {
+                        float percentage = (dbHelper.sumOfIncomeCategoryInMonth(getArguments().getInt("month"), getArguments().getInt("year"), i) / dbHelper.sumOfIncomeTransactionsMonth(getArguments().getInt("month"), getArguments().getInt("year"))) * 100;
+                        pieEntries.add(new PieEntry(percentage, utils.incomeGroups(getActivity()).get(i).getName()));
+                    }
+                }
+                PieDataSet pieDataSet = new PieDataSet(pieEntries, "Categories");
+                pieDataSet.setColors(new int[]{Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E")});
+                pieDataSet.setValueTextColor(getResources().getColor(android.R.color.white));
+                pieDataSet.setValueTextSize(12);
+                PieData pieData = new PieData(pieDataSet);
+                pieChart.setData(pieData);
+                pieChart.setEntryLabelColor(getResources().getColor(android.R.color.white));
+                pieChart.setEntryLabelTextSize(12);
+                pieChart.setUsePercentValues(true);
+                Description desc = new Description();
+                desc.setTextSize(0);
+                desc.setText("");
+                pieChart.setDescription(desc);
+                pieChart.setCenterText(getResources().getString(R.string.income_category_percentages));
+                pieChart.invalidate();
+
+            } else {
+                BarChart lineChart = (BarChart) view.findViewById(R.id.incomeBarChart);
+                lineChart.setVisibility(GONE);
+                PieChart pieChart = (PieChart) view.findViewById(R.id.incomePieChart);
+                pieChart.setVisibility(GONE);
+                TextView textView = (TextView) view.findViewById(R.id.textView11);
+                textView.setVisibility(GONE);
+                TextView textView1 = (TextView) view.findViewById(R.id.textView13);
+                textView1.setVisibility(GONE);
+            }
+            daysInMonthIncome.close();
+
             ArrayList<Week> weeks = new ArrayList<>();
             Calendar calendar = Calendar.getInstance();
-            DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+
             calendar.set(getArguments().getInt("year"), getArguments().getInt("month"), 1);
             for (int i = 0; i < calendar.getActualMaximum(Calendar.WEEK_OF_MONTH); i++) {
                 if (dbHelper.getDaysInWeek(calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.DAY_OF_MONTH) + 6, getArguments().getInt("month"), getArguments().getInt("year")).getCount() != 0) {
@@ -257,6 +480,8 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         viewHolder.title.setText(getString(R.string.week) + " " + (position + 1));
                 }
+                Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"coolvetica_rg.ttf");
+                viewHolder.title.setTypeface(typeface);
 
                 LinearLayout list = viewHolder.list;
                 Cursor cursor = dbHelper.getDaysInWeek(weeks.get(position).firstDay, weeks.get(position).lastDay, weeks.get(position).month, weeks.get(position).year);
@@ -400,7 +625,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         protected Bitmap doInBackground(Void... params) {
-                            return  Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.categoryGroups(getActivity()).get(type).get(cat).getPicId()), 120, 120, false);
+                            return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.categoryGroups(getActivity()).get(type).get(cat).getPicId()), 120, 120, false);
                         }
 
                         @Override
@@ -418,9 +643,11 @@ public class MainActivity extends AppCompatActivity {
                     transactionViewHolder.subText.setText(getResources().getString(R.string.income));
                 }
                 if (amount > 1000000) {
-                    amountString = (amount / 1000000) + " " + getString(R.string.mn);
+                    DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                    amountString = decimalFormat.format(amount / 1000000) + " " + getString(R.string.mn);
                 } else if (amount > 1000) {
-                    amountString = amount / 1000 + " " + getString(R.string.k);
+                    DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                    amountString = decimalFormat.format(amount / 1000) + " " + getString(R.string.k);
                 } else {
                     DecimalFormat decimalFormat = new DecimalFormat("#.##");
                     amountString = decimalFormat.format(amount);

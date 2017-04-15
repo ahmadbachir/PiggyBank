@@ -47,6 +47,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class AddTransactionActivity extends AppCompatActivity {
     double amount = 0;
     DatePickerDialog.OnDateSetListener onDateSetListener;
@@ -59,6 +62,10 @@ public class AddTransactionActivity extends AppCompatActivity {
     boolean editing = false;
     long id = 0;
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_transaction);
@@ -66,19 +73,24 @@ public class AddTransactionActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_close);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
-        TextView amountView = (TextView) findViewById(R.id.amount_text);
         updateDateText();
-        TextView textView = (TextView) findViewById(R.id.dateTextView);
         final Spinner spinner = (Spinner) findViewById(R.id.methodSpinner);
+        TextView textView = (TextView) findViewById(R.id.dateTextView);
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 datePickerDialog().show();
             }
         });
+        TextView amountView = (TextView) findViewById(R.id.amount_text);
         amountView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -374,15 +386,16 @@ public class AddTransactionActivity extends AppCompatActivity {
             return;
         }
         DatabaseHelper dbHelper = new DatabaseHelper(this);
+        Spinner spinner = (Spinner) findViewById(R.id.methodSpinner);
         if (!editing) {
             if (isExpense()) {
-                dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinnerPos));
+                dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinner.getItemIdAtPosition(spinnerPos)));
             } else {
                 dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), null);
             }
         } else {
             if (isExpense()) {
-                dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinnerPos));
+                dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinner.getItemIdAtPosition(spinnerPos)));
             } else {
                 dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), null);
             }

@@ -10,7 +10,7 @@
     android:paddingStart="32dp"
     android:paddingTop="16dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.ab.piggybank.DetailTransaction"
+    tools:context="com.ab.piggybank.activity.DetailTransaction"
     tools:showIn="@layout/activity_detail_transaction">
 
     <TextView

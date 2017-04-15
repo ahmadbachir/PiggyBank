@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="16dp"
+    android:paddingEnd="32dp"
+    android:paddingStart="32dp"
+    android:paddingTop="16dp">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/relationship_icon"
+        android:layout_width="68dp"
+        android:layout_height="match_parent"
+        app:riv_border_color="@color/colorAccent"
+        app:riv_border_width="5dp"
+        app:riv_corner_radius="5dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/who_do_you_have_debt_with"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse" />
+
+        <EditText
+            android:id="@+id/debt_name"
+            style="@style/dialog_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ems="10"
+            android:hint="@string/ex_mom_dad"
+            android:inputType="textPersonName"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+</LinearLayout>

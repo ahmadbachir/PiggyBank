@@ -33,10 +33,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_METHOD_TYPE_AFTER_SORT = "TYPEAFTERSORT";
     public static final String COLUMN_METHOD_USABLE = "ISUSABLE";
     public static final String TABLENAME_4 = "CURRENCYNAMES_ENG";
+    public static final String TABLENAME_5 = "DEBT_RELATIONSHIPS";
+    public static final String COLUMN_RELATIONSHIP_ICON = "ICON_ID";
+    public static final String COLUMN_RELATIONSHIP_NAME = "RELATIONSHIPNAME";
+    public static final String TABLENAME_6 = "DEBT_TRANSACTIONS";
+    public static final String COLUMN_WHICH_RELATIONSHIP = "RELATIONSHIP_ID";
+    public static final String COLUMN_DEBT_DESCRIPTION = "DEBT_DESC";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        Log.i("dbHelper", "dbHelper Called.");
     }
 
     @Override
@@ -45,6 +50,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createCurrencyRateTable(db);
         createPaymentMethodType(db);
         createCurrencyNameTableENG(db);
+        createDebtRelationshipTable(db);
+        createDebtTransactionTable(db);
     }
 
     @Override
@@ -95,6 +102,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_CURRENCY_NAME + " TEXT UNIQUE)");
     }
 
+    private void createDebtRelationshipTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " +
+                TABLENAME_5 + " ( " +
+                COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                COLUMN_RELATIONSHIP_ICON + " INTEGER, " +
+                COLUMN_METHOD_USABLE + " NUMERIC, " +
+                COLUMN_RELATIONSHIP_NAME + " TEXT UNIQUE)");
+    }
+
+    private void createDebtTransactionTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " +
+                TABLENAME_6 + " ( " +
+                COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                COLUMN_ENTRYTYPE + " INTEGER, " +
+                COLUMN_AMOUNT + " REAL, " +
+                COLUMN_DATE_DAY + " INTEGER, " +
+                COLUMN_DATE_MONTH + " INTEGER, " +
+                COLUMN_DATE_YEAR + " INTEGER, " +
+                COLUMN_DEBT_DESCRIPTION + " TEXT, " +
+                COLUMN_WHICH_RELATIONSHIP + " INTEGER )");
+    }
+
     public void insertTransaction(double amount, int type, int category, int subcategory, int day, int month, int year, String paymentMethod) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -108,8 +137,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_PAYMENT_METHOD_ID, paymentMethod);
         db.insertOrThrow(TABLENAME_1, null, contentValues);
     }
-    public void updateTransaction(long id,double amount, int type, int category, int subcategory, int day, int month, int year, String paymentMethod) {
-        Log.i("update","updating");
+
+    public void updateTransaction(long id, double amount, int type, int category, int subcategory, int day, int month, int year, String paymentMethod) {
+        Log.i("update", "updating");
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_AMOUNT, amount);
@@ -120,7 +150,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_DATE_MONTH, month);
         contentValues.put(COLUMN_DATE_YEAR, year);
         contentValues.put(COLUMN_PAYMENT_METHOD_ID, paymentMethod);
-        db.update(TABLENAME_1, contentValues,COLUMN_ID + " = " + id,null);
+        db.update(TABLENAME_1, contentValues, COLUMN_ID + " = " + id, null);
     }
 
     public Cursor getCurrencyRate() {
@@ -129,9 +159,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public Cursor getTransaction(long id){
+    public Cursor getTransaction(long id) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLENAME_1,null,COLUMN_ID + " = " + id,null,null,null,null);
+        Cursor cursor = db.query(TABLENAME_1, null, COLUMN_ID + " = " + id, null, null, null, null);
         return cursor;
     }
 
@@ -167,6 +197,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLENAME_3, null, null, null, null, null, null, null);
         return cursor;
     }
+
     public Cursor getUserMethod(long id) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_3, null, COLUMN_ID + " = " + id, null, null, null, null, null);
@@ -205,18 +236,183 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getTransactionsInDay(int day, int month, int year) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_1, null, COLUMN_DATE_DAY + " = " + day + " AND " + COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year, null, null, null, COLUMN_DATE_DAY + " ASC");
+        cursor.moveToPosition(0);
         return cursor;
     }
 
     public Cursor getTransactionsInMonth(int month, int year) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_1, null, COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year, null, null, null, COLUMN_DATE_DAY + " ASC");
+        cursor.moveToPosition(0);
         return cursor;
     }
 
-    public void deleteTransaction(long id){
+    public void deleteTransaction(long id) {
         SQLiteDatabase db = getReadableDatabase();
-        db.delete(TABLENAME_1,COLUMN_ID + " = " + id,null);
+        db.delete(TABLENAME_1, COLUMN_ID + " = " + id, null);
     }
+
+    public Cursor getDaysInMonth(int month, int year) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{COLUMN_DATE_DAY, COLUMN_DATE_MONTH, COLUMN_DATE_YEAR}, COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 0", null, COLUMN_DATE_DAY, null, COLUMN_DATE_DAY + " ASC");
+        cursor.moveToPosition(0);
+        return cursor;
+    }
+
+    public float sumOfExpenseTransactionsDay(int day, int month, int year) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_DATE_DAY + " = " + day + " AND " + COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 0", null, null, null, null);
+        cursor.moveToPosition(0);
+        float amount = cursor.getFloat(0);
+        cursor.close();
+        return amount;
+    }
+
+    public Cursor getDaysInMonthIncome(int month, int year) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{COLUMN_DATE_DAY, COLUMN_DATE_MONTH, COLUMN_DATE_YEAR}, COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 1", null, COLUMN_DATE_DAY, null, COLUMN_DATE_DAY + " ASC");
+        cursor.moveToPosition(0);
+        return cursor;
+    }
+
+    public float sumOfIncomeTransactionsDay(int day, int month, int year) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_DATE_DAY + " = " + day + " AND " + COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 1", null, null, null, null);
+        cursor.moveToPosition(0);
+        float amount = cursor.getFloat(0);
+        cursor.close();
+        return amount;
+    }
+
+    public float sumOfExponseTransactionsMonth(int month, int year) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 0", null, null, null, null);
+        cursor.moveToPosition(0);
+        float amount = cursor.getFloat(0);
+        cursor.close();
+        return amount;
+    }
+
+    public float sumOfIncomeTransactionsMonth(int month, int year) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 1", null, null, null, null);
+        cursor.moveToPosition(0);
+        float amount = cursor.getFloat(0);
+        cursor.close();
+        return amount;
+    }
+
+    public float sumOfExpenseCategoryInMonth(int month, int year, int category) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 0 AND " + COLUMN_CATEGORY + " = " + category, null, null, null, null);
+        cursor.moveToPosition(0);
+        float amount = cursor.getFloat(0);
+        cursor.close();
+        return amount;
+    }
+
+    public float sumOfIncomeCategoryInMonth(int month, int year, int category) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year + " AND " + COLUMN_ENTRYTYPE + " = 1 AND " + COLUMN_CATEGORY + " = " + category, null, null, null, null);
+        cursor.moveToPosition(0);
+        float amount = cursor.getFloat(0);
+        cursor.close();
+        return amount;
+    }
+
+    public Cursor getDebtRelationships() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_5, null, COLUMN_METHOD_USABLE + " = 1", null, null, null, null);
+        return cursor;
+    }
+
+    public double sumOfDebtRelationIngoing(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_6, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_WHICH_RELATIONSHIP + " = " + id + " AND " + COLUMN_ENTRYTYPE + " = " + 1, null, null, null, null);
+        cursor.moveToPosition(0);
+        if (cursor.moveToFirst()) {
+            double amount = cursor.getDouble(0);
+            cursor.close();
+            return amount;
+        } else {
+            cursor.close();
+            return 0;
+        }
+    }
+
+    public double sumOfDebtRelationOutgoing(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_6, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_WHICH_RELATIONSHIP + " = " + id + " AND " + COLUMN_ENTRYTYPE + " = " + 0, null, null, null, null);
+        cursor.moveToPosition(0);
+        if (cursor.moveToFirst()) {
+            double amount = cursor.getDouble(0);
+            cursor.close();
+            return amount;
+        } else {
+            cursor.close();
+            return 0;
+        }
+    }
+
+    public void updateDebtRelationship(long id, int picId, String name) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_RELATIONSHIP_ICON, picId);
+        contentValues.put(COLUMN_RELATIONSHIP_NAME, name);
+        db.update(TABLENAME_5, contentValues, COLUMN_ID + " = " + id, null);
+    }
+
+    public void insertDebtRelationship(int picId, String name) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_RELATIONSHIP_ICON, picId);
+        contentValues.put(COLUMN_METHOD_USABLE, 1);
+        contentValues.put(COLUMN_RELATIONSHIP_NAME, name);
+        db.insert(TABLENAME_5, null, contentValues);
+    }
+
+    public void deleteDebtRelationship(long id){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_METHOD_USABLE,0);
+        db.update(TABLENAME_5,contentValues,COLUMN_ID + " = " + id,null);
+    }
+    public void deleteDebtTransaction(long id){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_METHOD_USABLE,0);
+        db.delete(TABLENAME_6,COLUMN_ID + " = " + id,null);
+    }
+
+    public Cursor getDebtTransactionsOfRelationship(long id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_6,null,COLUMN_WHICH_RELATIONSHIP + " = " + id,null,null,null,COLUMN_DATE_DAY+ ", " + COLUMN_DATE_MONTH + ", " + COLUMN_DATE_YEAR + " DESC");
+        return cursor;
+    }
+
+    public void insertDebtTransaction(int entryType,double amount, int day,int month, int year, int whichRelationship){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_ENTRYTYPE,entryType);
+        contentValues.put(COLUMN_AMOUNT,amount);
+        contentValues.put(COLUMN_DATE_DAY,day);
+        contentValues.put(COLUMN_DATE_MONTH,month);
+        contentValues.put(COLUMN_DATE_YEAR,year);
+        contentValues.put(COLUMN_WHICH_RELATIONSHIP,whichRelationship);
+        db.insert(TABLENAME_6,null,contentValues);
+    }
+
+    public void editDebtTransaction(long id,int entryType,double amount, int day,int month, int year, int whichRelationship){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_ENTRYTYPE,entryType);
+        contentValues.put(COLUMN_AMOUNT,amount);
+        contentValues.put(COLUMN_DATE_DAY,day);
+        contentValues.put(COLUMN_DATE_MONTH,month);
+        contentValues.put(COLUMN_DATE_YEAR,year);
+        contentValues.put(COLUMN_WHICH_RELATIONSHIP,whichRelationship);
+        db.update(TABLENAME_6, contentValues,COLUMN_ID + " = " + id,null);
+    }
+
 
 }

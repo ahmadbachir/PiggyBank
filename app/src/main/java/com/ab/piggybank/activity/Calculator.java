@@ -1,5 +1,6 @@
 package com.ab.piggybank.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,11 +19,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ab.piggybank.AddDebtTransaction;
 import com.ab.piggybank.R;
 
 import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class Calculator extends AppCompatActivity {
     private TextView screen;
@@ -30,7 +35,12 @@ public class Calculator extends AppCompatActivity {
     private String currentOperator = "";
     private String result = "";
     private double amount = 0;
+    private boolean isDebt = false;
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +48,11 @@ public class Calculator extends AppCompatActivity {
         setContentView(R.layout.activity_calculator);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.add_your_amount);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -48,19 +63,28 @@ public class Calculator extends AppCompatActivity {
         screen.setText(display);
 
         updateCurrentAmount(getIntent().getDoubleExtra("amount", 0.00));
-
+        isDebt = getIntent().getBooleanExtra("debt", false);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            Intent i = new Intent(this, AddTransactionActivity.class);
-            if (getIntent().getExtras() != null) {
-                i.putExtras(getIntent().getExtras());
+            if (isDebt) {
+                Intent i = new Intent(this, AddDebtTransaction.class);
+                if (getIntent().getExtras() != null) {
+                    i.putExtras(getIntent().getExtras());
+                }
+                startActivity(i);
+                finish();
+            } else {
+                Intent i = new Intent(this, AddTransactionActivity.class);
+                if (getIntent().getExtras() != null) {
+                    i.putExtras(getIntent().getExtras());
+                }
+                startActivity(i);
+                finish();
             }
-            startActivity(i);
-            finish();
         }
         if (id == R.id.done) {
             onDone();
@@ -280,14 +304,7 @@ public class Calculator extends AppCompatActivity {
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent i = new Intent(Calculator.this, AddTransactionActivity.class);
-                if (getIntent().getExtras() != null) {
-                    i.putExtras(getIntent().getExtras());
-                }
-                i.putExtra("calc", true);
-                i.putExtra("amount", amount);
-                startActivity(i);
-                finish();
+                leaveActivity();
             }
         });
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -299,6 +316,12 @@ public class Calculator extends AppCompatActivity {
         if (amount > 100000) {
             builder.show();
         } else {
+            leaveActivity();
+        }
+    }
+
+    private void leaveActivity() {
+        if (!isDebt) {
             Intent i = new Intent(this, AddTransactionActivity.class);
             if (getIntent().getExtras() != null) {
                 i.putExtras(getIntent().getExtras());
@@ -307,7 +330,16 @@ public class Calculator extends AppCompatActivity {
             i.putExtra("amount", amount);
             startActivity(i);
             finish();
+        } else {
+            Intent i = new Intent(this, AddDebtTransaction.class);
+            if (getIntent().getExtras() != null) {
+                i.putExtras(getIntent().getExtras());
+            }
+            i.putExtra("calc", true);
+            i.putExtra("amount", amount);
+            startActivity(i);
+            finish();
         }
-        }
-
     }
+
+}
