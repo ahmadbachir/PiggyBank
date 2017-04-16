@@ -78,7 +78,7 @@
         <activity
             android:name=".activity.MainDebtActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="@string/title_activity_main_debt"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".DetailDebtActivity"

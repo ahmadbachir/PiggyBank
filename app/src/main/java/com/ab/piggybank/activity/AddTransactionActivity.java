@@ -275,7 +275,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         if (getIntent().getStringExtra("spinnerPos") != null) {
             spinnerPos = Integer.valueOf(getIntent().getStringExtra("spinnerPos"));
         }
-        updateMethodSpinnerStatus();
+
     }
 
     @Override

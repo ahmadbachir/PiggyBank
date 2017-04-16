@@ -2,6 +2,7 @@ package com.ab.piggybank;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -15,15 +16,18 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 public class DetailDebtActivity extends AppCompatActivity {
@@ -41,13 +45,17 @@ public class DetailDebtActivity extends AppCompatActivity {
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         dbHelper = new DatabaseHelper(this);
-        long id = getIntent().getLongExtra("id", 1);
-        Cursor cursor = dbHelper.getDebtRelationships();
-        cursor.moveToPosition((int) (id - 1));
-        toolbar.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_NAME)));
+        final long id1 = getIntent().getLongExtra("id", 1);
+        Cursor cursor = dbHelper.getDebtRelationshipAtId(id1);
+        cursor.moveToPosition(0);
+        if (id1 == 1) {
+            getSupportActionBar().setTitle(R.string.the_bank);
+        } else {
+            getSupportActionBar().setTitle(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_NAME)));
+        }
         cursor.close();
         final ListView listView = (ListView) findViewById(R.id.debt_transaction_list);
-        MyListAdapter listAdapter = new MyListAdapter(this, dbHelper.getDebtTransactionsOfRelationship(id));
+        MyListAdapter listAdapter = new MyListAdapter(this, dbHelper.getDebtTransactionsOfRelationship(id1));
         listView.setAdapter(listAdapter);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -57,14 +65,50 @@ public class DetailDebtActivity extends AppCompatActivity {
                 builder.setItems(new String[]{getString(R.string.edit), getString(R.string.delete)}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case 1: //TODO Insert intent to edit add debt transaction
+                        switch (which) {
+                            case 0:
+                                Intent intent = new Intent(getApplicationContext(), AddDebtTransaction.class);
+                                Cursor cursor1 = dbHelper.getDebtTransactionAtID(id);
+                                cursor1.moveToPosition(0);
+                                intent.putExtra("editing", true);
+                                intent.putExtra("debt", true);
+                                intent.putExtra("amount", cursor1.getDouble(cursor1.getColumnIndexOrThrow(dbHelper.COLUMN_AMOUNT)));
+                                intent.putExtra("id", id);
+                                intent.putExtra("year", cursor1.getInt(cursor1.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_YEAR)));
+                                intent.putExtra("month", cursor1.getInt(cursor1.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_MONTH)));
+                                intent.putExtra("day", cursor1.getInt(cursor1.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)));
+                                intent.putExtra("desc", cursor1.getString(cursor1.getColumnIndexOrThrow(dbHelper.COLUMN_DEBT_DESCRIPTION)));
+                                Cursor cursor2 = dbHelper.getDebtRelationships();
+                                cursor2.moveToPosition(0);
+                                boolean foundPos = false;
+                                while (!foundPos) {
+                                    long rowId = cursor2.getLong(cursor2.getColumnIndexOrThrow(dbHelper.COLUMN_ID));
+                                    if (id1 == rowId) {
+                                        foundPos = true;
+                                    } else {
+                                        cursor2.moveToNext();
+                                    }
+                                }
+                                intent.putExtra("spinnerPos", String.valueOf(cursor2.getPosition()));
+                                intent.putExtra("type", cursor1.getInt(cursor1.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE)));
+                                startActivity(intent);
+                                cursor1.close();
+                                cursor2.close();
+                                finish();
                                 break;
-                            case 2: dbHelper.deleteDebtTransaction(id);
-                                listView.deferNotifyDataSetChanged();
+                            case 1:
+                                dbHelper.deleteDebtTransaction(id);
+                                if (listView.getAdapter().getCount() == 1) {
+                                    finish();
+                                } else {
+                                    listView.invalidateViews();
+                                }
+
+
                         }
                     }
                 });
+                builder.create().show();
                 return false;
             }
         });
@@ -72,7 +116,7 @@ public class DetailDebtActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -80,6 +124,7 @@ public class DetailDebtActivity extends AppCompatActivity {
 
     private class MyListAdapter extends CursorAdapter {
         String currency = null;
+
         public MyListAdapter(Context context, Cursor c) {
             super(context, c);
         }
@@ -91,25 +136,36 @@ public class DetailDebtActivity extends AppCompatActivity {
             viewHolder.desc = (TextView) view.findViewById(R.id.descText);
             viewHolder.dateText = (TextView) view.findViewById(R.id.dateText);
             viewHolder.amountView = (TextView) view.findViewById(R.id.amountView);
-            view.setTag(view);
+            viewHolder.indicator = (ImageView) view.findViewById(R.id.typeIndicator);
+            view.setTag(viewHolder);
             return view;
         }
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder viewHolder = (ViewHolder) view.getTag();
-            if(currency == null){
+            if (currency == null) {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                currency = getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country",1)];
+                currency = getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1];
+            }
+            double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_AMOUNT));
+            String amountString;
+            if (amount > 1000000) {
+                amountString = (amount / 1000000) + " " + getString(R.string.mn);
+            } else if (amount > 1000) {
+                amountString = amount / 1000 + " " + getString(R.string.k);
+            } else {
+                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                amountString = decimalFormat.format(amount);
             }
             viewHolder.desc.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DEBT_DESCRIPTION)));
             if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE)) != 0) {
-                viewHolder.amountView.setTextColor(getResources().getColor(R.color.red_accent));
+                viewHolder.indicator.setBackgroundColor(getColor(R.color.green_accent));
             } else {
-                viewHolder.amountView.setTextColor(getResources().getColor(R.color.green_accent));
+                viewHolder.indicator.setBackgroundColor(getColor(R.color.red_accent));
             }
-            viewHolder.amountView.setText(cursor.getDouble(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_AMOUNT)) + " " +  currency);
-            Date date = new Date(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_YEAR)),cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_MONTH)),cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)));
+            viewHolder.amountView.setText(amountString + " " + currency);
+            Date date = new Date(cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_YEAR)) - 1900, cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_MONTH)), cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)));
             viewHolder.dateText.setText(DateFormat.getDateInstance().format(date));
         }
 
@@ -117,6 +173,7 @@ public class DetailDebtActivity extends AppCompatActivity {
             TextView desc;
             TextView dateText;
             TextView amountView;
+            ImageView indicator;
         }
     }
 

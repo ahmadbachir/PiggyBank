@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -63,7 +64,7 @@ public class AddDebtTransaction extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         ImageView imageView = (ImageView) findViewById(R.id.flagImage);
         Utils utils = new Utils();
-        final Spinner spinner = (Spinner) findViewById(R.id.methodSpinner);
+        final Spinner spinner = (Spinner) findViewById(R.id.whoSpinner);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         imageView.setImageResource(utils.flagIds()[preferences.getInt("country", 0) - 1]);
         onDateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -73,6 +74,8 @@ public class AddDebtTransaction extends AppCompatActivity {
                 updateDateText();
             }
         };
+        final TextInputLayout editText = (TextInputLayout) findViewById(R.id.descriptionInput);
+        updateDateText();
         TextView textView = (TextView) findViewById(R.id.dateTextView);
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,49 +102,73 @@ public class AddDebtTransaction extends AppCompatActivity {
                     i.putExtra("id", id);
                 }
 
-                i.putExtra("spinnerPos", spinner.getSelectedItemId());
+                if(editText.getEditText().getText().toString().length() != 0){
+                    i.putExtra("desc",editText.getEditText().getText().toString());
+                }
+                RadioButton radioButton1 = (RadioButton) findViewById(R.id.ingoingRadiobutton);
+                RadioButton radioButton2 = (RadioButton) findViewById(R.id.outgoingRadiobutton);
+                if(radioButton1.isChecked()){
+                    i.putExtra("type",1);
+                }
+                if(radioButton2.isChecked()){
+                    i.putExtra("type",0);
+                }
+                i.putExtra("spinnerPos", String.valueOf(spinner.getSelectedItemPosition()));
                 startActivity(i);
+                finish();
             }
         });
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         SpinnerAdapter spinnerAdapter = new SpinnerAdapter(this, dbHelper.getDebtRelationships());
         spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                spinnerPos = position;
+                updateMethodIcon(spinnerPos);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             finish();
         }
-        if(item.getItemId() == R.id.done){
-            if(amount == 0){
-                Toast.makeText(this,R.string.amount_needs_to_more_than_zero, Toast.LENGTH_LONG).show();
+        if (item.getItemId() == R.id.done) {
+            if (amount == 0) {
+                Toast.makeText(this, R.string.amount_needs_to_more_than_zero, Toast.LENGTH_LONG).show();
                 return true;
             }
             TextInputLayout editText = (TextInputLayout) findViewById(R.id.descriptionInput);
-            if(editText.getEditText().getText().toString().length() == 0){
-                Toast.makeText(this, R.string.need_desc_to_proceed,Toast.LENGTH_LONG).show();
+            if (editText.getEditText().getText().toString().length() == 0) {
+                Toast.makeText(this, R.string.need_desc_to_proceed, Toast.LENGTH_LONG).show();
                 return true;
             }
             RadioButton radioButton1 = (RadioButton) findViewById(R.id.ingoingRadiobutton);
             RadioButton radioButton2 = (RadioButton) findViewById(R.id.outgoingRadiobutton);
-            if(!(radioButton1.isChecked() || radioButton2.isChecked())){
-                Toast.makeText(this, R.string.choose_ingoing_outgoing,Toast.LENGTH_LONG).show();
+            if (!(radioButton1.isChecked() || radioButton2.isChecked())) {
+                Toast.makeText(this, R.string.choose_ingoing_outgoing, Toast.LENGTH_LONG).show();
                 return true;
             }
             int type = 0;
-            if(radioButton1.isChecked()){
+            if (radioButton1.isChecked()) {
                 type = 1;
             }
-            if(radioButton2.isChecked()){
+            if (radioButton2.isChecked()) {
                 type = 0;
             }
             DatabaseHelper dbHelper = new DatabaseHelper(this);
-            if(editing){
-                dbHelper.editDebtTransaction(id,type,amount,calendar.get(Calendar.DAY_OF_MONTH),calendar.get(Calendar.MONTH),calendar.get(Calendar.YEAR),spinnerPos);
-            }
-            else {
-                dbHelper.insertDebtTransaction(type,amount,calendar.get(Calendar.DAY_OF_MONTH),calendar.get(Calendar.MONTH),calendar.get(Calendar.YEAR),spinnerPos);
+            final Spinner spinner = (Spinner) findViewById(R.id.whoSpinner);
+            if (editing) {
+                dbHelper.editDebtTransaction(id,editText.getEditText().getText().toString(), type, amount, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), (int) spinner.getSelectedItemId());
+            } else {
+                dbHelper.insertDebtTransaction(type, editText.getEditText().getText().toString(),amount, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), (int) spinner.getSelectedItemId());
             }
             finish();
         }
@@ -185,24 +212,42 @@ public class AddDebtTransaction extends AppCompatActivity {
         if (getIntent().getStringExtra("spinnerPos") != null) {
             spinnerPos = Integer.valueOf(getIntent().getStringExtra("spinnerPos"));
         }
-        updateMethodSpinnerStatus(spinnerPos);
-
-    }
-
-    private void updateMethodSpinnerStatus(int spinnerPos) {
-        Spinner spinner = (Spinner) findViewById(R.id.methodSpinner);
+        if(getIntent().getStringExtra("desc") != null){
+            final TextInputLayout editText = (TextInputLayout) findViewById(R.id.descriptionInput);
+            editText.getEditText().setText(getIntent().getStringExtra("desc"));
+        }
+        final Spinner spinner = (Spinner) findViewById(R.id.whoSpinner);
         spinner.setSelection(spinnerPos);
         updateMethodIcon(spinnerPos);
+        if(getIntent().getIntExtra("type",-1) != -1){
+            RadioButton radioButton1 = (RadioButton) findViewById(R.id.ingoingRadiobutton);
+            RadioButton radioButton2 = (RadioButton) findViewById(R.id.outgoingRadiobutton);
+            if(getIntent().getIntExtra("type",-1) == 1){
+                radioButton1.toggle();
+            }
+            if (getIntent().getIntExtra("type",-1) == 0){
+                radioButton2.toggle();
+            }
+        }
+
+
     }
 
+
     private void updateMethodIcon(int pos) {
-        ImageView icon = (ImageView) findViewById(R.id.methodIcon);
+        ImageView icon = (ImageView) findViewById(R.id.whoIcon);
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         Cursor cursor = dbHelper.getDebtRelationships();
         cursor.moveToPosition(pos);
         Utils utils = new Utils();
-        icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_ICON))]), 120, 120, false));
-        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_longAnimTime));
+        YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_longAnimTime)).playOn(icon);
+        if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_ICON)) != -1) {
+            icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_ICON))]), 120, 120, false));
+        } else {
+            icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.bank), 120, 120, false));
+
+        }
+        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_longAnimTime)).playOn(icon);
     }
 
     private DatePickerDialog datePickerDialog() {
@@ -224,7 +269,7 @@ public class AddDebtTransaction extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.calculator_menu,menu);
+        getMenuInflater().inflate(R.menu.calculator_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -248,7 +293,12 @@ public class AddDebtTransaction extends AppCompatActivity {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder viewHolder = (ViewHolder) view.getTag();
-            viewHolder.mainText.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_NAME)));
+            if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_ICON)) != -1) {
+                viewHolder.mainText.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_NAME)));
+            }
+            else{
+                viewHolder.mainText.setText(R.string.the_bank);
+            }
         }
 
         private class ViewHolder {

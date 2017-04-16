@@ -1,5 +1,4 @@
 package com.ab.piggybank.activity;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,24 +10,19 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,10 +31,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.ab.piggybank.AddDebtTransaction;
 import com.ab.piggybank.DatabaseHelper;
 import com.ab.piggybank.DetailDebtActivity;
 import com.ab.piggybank.R;
@@ -49,6 +42,7 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.github.clans.fab.FloatingActionMenu;
 import com.makeramen.roundedimageview.RoundedImageView;
+import java.text.DecimalFormat;
 
 public class MainDebtActivity extends AppCompatActivity {
     boolean isActionMenuExpanded = false;
@@ -59,7 +53,7 @@ public class MainDebtActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_debt);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);//TODO Add restore activity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
@@ -80,7 +74,16 @@ public class MainDebtActivity extends AppCompatActivity {
         }
         CursorAdapter cursorAdapter = new CursorAdapter(this, dbHelper.getDebtRelationships());
         listView.setAdapter(cursorAdapter);
-
+        com.github.clans.fab.FloatingActionButton floatingActionButton1 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.addDebtTransaction);
+        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainDebtActivity.this, AddDebtTransaction.class);
+                startActivity(i);
+                onClickMenu();
+                floatingActionMenu.toggle(true);
+            }
+        });
 
         com.github.clans.fab.FloatingActionButton floatingActionButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.addRelationship);
         floatingActionButton.setOnClickListener(new View.OnClickListener()
@@ -90,6 +93,14 @@ public class MainDebtActivity extends AppCompatActivity {
             public void onClick(View v) {
                 onClickMenu();
                 floatingActionMenu.toggle(true);
+                if (isActionMenuExpanded) {
+                    final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.debtFloatingMenu);
+                    ImageView imageView = (ImageView) findViewById(R.id.debtActivityOverlay);
+                    imageView.animate().alpha(0).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+                    isActionMenuExpanded = false;
+                    floatingActionMenu.toggle(true);
+                    imageView.setClickable(false);
+                }
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainDebtActivity.this);
                 builder.setTitle(R.string.add_debt_relationship);
                 View view1 = LayoutInflater.from(getApplicationContext()).inflate(R.layout.debt_relationship_editor_layout, null, false);
@@ -171,7 +182,13 @@ public class MainDebtActivity extends AppCompatActivity {
         int id;
     }
 
-    //TODO Create debt transaction list activity
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ListView listView = (ListView) findViewById(R.id.debt_relationships);
+        listView.invalidateViews();
+    }
+
     public void onClickMenu() {
         if (!isActionMenuExpanded) {
             ImageView imageView = (ImageView) findViewById(R.id.debtActivityOverlay);
@@ -234,8 +251,29 @@ public class MainDebtActivity extends AppCompatActivity {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             double amountOutgoing = dbHelper.sumOfDebtRelationOutgoing(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)));
             String currency = getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 0) - 1];
-            viewHolder.amountIn.setText(amountIngoing + " " + currency);
-            viewHolder.amountOut.setText(amountOutgoing + " " + currency);
+            String amountInString;
+            String amountOutString;
+            if (amountIngoing > 1000000) {
+                amountInString = (amountIngoing / 1000000) + " " + getString(R.string.mn);
+            } else if (amountIngoing > 1000) {
+                amountInString = amountIngoing / 1000 + " " + getString(R.string.k);
+            } else {
+                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                amountInString = decimalFormat.format(amountIngoing);
+            }
+
+
+            if (amountOutgoing > 1000000) {
+                amountOutString = (amountOutgoing / 1000000) + " " + getString(R.string.mn);
+            } else if (amountOutgoing > 1000) {
+                amountOutString = amountOutgoing / 1000 + " " + getString(R.string.k);
+            } else {
+                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                amountOutString = decimalFormat.format(amountOutgoing);
+            }
+            final int id = (int) cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID));
+            viewHolder.amountIn.setText(amountInString + " " + currency);
+            viewHolder.amountOut.setText(amountOutString + " " + currency);
             if (cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)) == 1) {
                 viewHolder.edit.setVisibility(View.GONE);
                 viewHolder.go.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -309,7 +347,7 @@ public class MainDebtActivity extends AppCompatActivity {
                                                         Toast.makeText(context, R.string.you_didnt_change_anything, Toast.LENGTH_LONG).show();
                                                         return;
                                                     }
-                                                    dbHelper.updateDebtRelationship(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)), pic.id, nameEnter.getText().toString());
+                                                    dbHelper.updateDebtRelationship(id, pic.id, nameEnter.getText().toString());
                                                     Intent intent = getIntent();
                                                     finish();
                                                     startActivity(intent);
@@ -321,10 +359,18 @@ public class MainDebtActivity extends AppCompatActivity {
                                     dialog1.show();
                                 }
                                 if (which == 1) {
-                                    dbHelper.deleteDebtRelationship(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)));
-                                    Intent intent = getIntent();
-                                    finish();
-                                    startActivity(intent);
+                                    dbHelper.deleteDebtRelationship(id);
+                                    ListView listView = (ListView) findViewById(R.id.debt_relationships);
+                                    Snackbar snackbar = Snackbar.make((View) listView.getParent(),getString(R.string.deleted),Snackbar.LENGTH_LONG);
+                                    snackbar.setAction("Undo", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            dbHelper.unDeleteDebtRelationship(id);
+                                            recreate();
+                                        }
+                                    });
+                                    snackbar.show();
+                                    recreate();
                                     dialog.dismiss();
                                 }
                             }
@@ -336,14 +382,20 @@ public class MainDebtActivity extends AppCompatActivity {
                 });
 
             }
+            Log.i("id", String.valueOf(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID))));
+
             viewHolder.go.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (dbHelper.getDebtTransactionsOfRelationship(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID))).getCount() == 0) {
+                    if (dbHelper.getDebtTransactionsOfRelationship(id).getCount() == 0) {
                         Toast.makeText(getApplicationContext(), R.string.no_debt_transactions, Toast.LENGTH_LONG).show();
+                        Log.i("id", String.valueOf(id));
+                        Log.i("count", String.valueOf(dbHelper.getDebtTransactionsOfRelationshipNew(id).getCount()));
                     } else {
                         Intent intent = new Intent(getApplicationContext(), DetailDebtActivity.class);
-                        intent.putExtra("id", cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)));
+                        Log.i("id", String.valueOf(id));
+                        Log.i("count", String.valueOf(dbHelper.getDebtTransactionsOfRelationshipNew(id).getCount()));
+                        intent.putExtra("id", (long) id);
                         startActivity(intent);
                     }
                 }
@@ -351,6 +403,7 @@ public class MainDebtActivity extends AppCompatActivity {
 
 
         }
+
 
         private class pic1 {
             int id;

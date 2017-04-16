@@ -326,6 +326,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public Cursor getDebtRelationshipAtId(long id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_5, null, COLUMN_ID + " = " + id, null, null, null, null);
+        return cursor;
+    }
+
     public double sumOfDebtRelationIngoing(long id) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_6, new String[]{"SUM (" + COLUMN_AMOUNT + ")"}, COLUMN_WHICH_RELATIONSHIP + " = " + id + " AND " + COLUMN_ENTRYTYPE + " = " + 1, null, null, null, null);
@@ -371,47 +377,69 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLENAME_5, null, contentValues);
     }
 
-    public void deleteDebtRelationship(long id){
+    public void deleteDebtRelationship(long id) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_METHOD_USABLE,0);
-        db.update(TABLENAME_5,contentValues,COLUMN_ID + " = " + id,null);
+        contentValues.put(COLUMN_METHOD_USABLE, 0);
+        db.update(TABLENAME_5, contentValues, COLUMN_ID + " = " + id, null);
     }
-    public void deleteDebtTransaction(long id){
+    public void unDeleteDebtRelationship(long id) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_METHOD_USABLE,0);
-        db.delete(TABLENAME_6,COLUMN_ID + " = " + id,null);
+        contentValues.put(COLUMN_METHOD_USABLE, 1);
+        db.update(TABLENAME_5, contentValues, COLUMN_ID + " = " + id, null);
     }
 
-    public Cursor getDebtTransactionsOfRelationship(long id){
+    public void deleteDebtTransaction(long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_METHOD_USABLE, 0);
+        db.delete(TABLENAME_6, COLUMN_ID + " = " + id, null);
+    }
+
+
+    public Cursor getDebtTransactionsOfRelationship(long id) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLENAME_6,null,COLUMN_WHICH_RELATIONSHIP + " = " + id,null,null,null,COLUMN_DATE_DAY+ ", " + COLUMN_DATE_MONTH + ", " + COLUMN_DATE_YEAR + " DESC");
+        Cursor cursor = db.query(TABLENAME_6, null, COLUMN_WHICH_RELATIONSHIP + " = " + id, null, null, null, COLUMN_DATE_DAY + " DESC, " + COLUMN_DATE_MONTH + " DESC, " + COLUMN_DATE_YEAR + " DESC");
         return cursor;
     }
 
-    public void insertDebtTransaction(int entryType,double amount, int day,int month, int year, int whichRelationship){
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_ENTRYTYPE,entryType);
-        contentValues.put(COLUMN_AMOUNT,amount);
-        contentValues.put(COLUMN_DATE_DAY,day);
-        contentValues.put(COLUMN_DATE_MONTH,month);
-        contentValues.put(COLUMN_DATE_YEAR,year);
-        contentValues.put(COLUMN_WHICH_RELATIONSHIP,whichRelationship);
-        db.insert(TABLENAME_6,null,contentValues);
+    public Cursor getDebtTransactionsOfRelationshipNew(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLENAME_6 + " WHERE " + COLUMN_WHICH_RELATIONSHIP + " = " + id,null);
+        return cursor;
     }
 
-    public void editDebtTransaction(long id,int entryType,double amount, int day,int month, int year, int whichRelationship){
+    public void insertDebtTransaction(int entryType, String desc, double amount, int day, int month, int year, int whichRelationship) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_ENTRYTYPE,entryType);
-        contentValues.put(COLUMN_AMOUNT,amount);
-        contentValues.put(COLUMN_DATE_DAY,day);
-        contentValues.put(COLUMN_DATE_MONTH,month);
-        contentValues.put(COLUMN_DATE_YEAR,year);
-        contentValues.put(COLUMN_WHICH_RELATIONSHIP,whichRelationship);
-        db.update(TABLENAME_6, contentValues,COLUMN_ID + " = " + id,null);
+        contentValues.put(COLUMN_ENTRYTYPE, entryType);
+        contentValues.put(COLUMN_AMOUNT, amount);
+        contentValues.put(COLUMN_DATE_DAY, day);
+        contentValues.put(COLUMN_DATE_MONTH, month);
+        contentValues.put(COLUMN_DATE_YEAR, year);
+        contentValues.put(COLUMN_DEBT_DESCRIPTION, desc);
+        contentValues.put(COLUMN_WHICH_RELATIONSHIP, whichRelationship);
+        db.insert(TABLENAME_6, null, contentValues);
+    }
+
+    public void editDebtTransaction(long id, String desc, int entryType, double amount, int day, int month, int year, int whichRelationship) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_ENTRYTYPE, entryType);
+        contentValues.put(COLUMN_AMOUNT, amount);
+        contentValues.put(COLUMN_DATE_DAY, day);
+        contentValues.put(COLUMN_DATE_MONTH, month);
+        contentValues.put(COLUMN_DATE_YEAR, year);
+        contentValues.put(COLUMN_DEBT_DESCRIPTION, desc);
+        contentValues.put(COLUMN_WHICH_RELATIONSHIP, whichRelationship);
+        db.update(TABLENAME_6, contentValues, COLUMN_ID + " = " + id, null);
+    }
+
+    public Cursor getDebtTransactionAtID(long id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_6,null,COLUMN_ID + " = " + id,null,null,null,null);
+        return cursor;
     }
 
 
