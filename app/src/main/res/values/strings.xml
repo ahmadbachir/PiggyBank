@@ -531,5 +531,8 @@
     <string name="outgoing">Outgoing</string>
     <string name="choose_ingoing_outgoing">You need to choose if your transaction is ingoing or outgoing.</string>
     <string name="deleted">Deleted</string>
+    <string name="restore_relationships">Restore Relationships</string>
+    <string name="title_activity_restore_relationships">Restore Deleted Relationships</string>
+    <string name="no_deleted_debt_relationships">You don\'t have any deleted debt relationships.</string>
 
 </resources>

@@ -72,8 +72,8 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.DetailTransaction"
-            android:label="@string/title_activity_detail_transaction"
             android:exported="true"
+            android:label="@string/title_activity_detail_transaction"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.MainDebtActivity"
@@ -82,14 +82,18 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".DetailDebtActivity"
-            android:label="@string/title_activity_detail_debt"
             android:exported="true"
+            android:label="@string/title_activity_detail_debt"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".AddDebtTransaction"
             android:exported="true"
             android:label="@string/title_activity_add_debt_transaction"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".RestoreRelationships"
+            android:label="@string/title_activity_restore_relationships"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

@@ -326,6 +326,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public Cursor getDeletedDebtRelationships() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_5, null, COLUMN_METHOD_USABLE + " = 0", null, null, null, null);
+        return cursor;
+    }
+
+
     public Cursor getDebtRelationshipAtId(long id){
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_5, null, COLUMN_ID + " = " + id, null, null, null, null);

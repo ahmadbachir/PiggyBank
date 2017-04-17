@@ -1,4 +1,5 @@
 package com.ab.piggybank.activity;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,15 +35,18 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.ab.piggybank.AddDebtTransaction;
 import com.ab.piggybank.DatabaseHelper;
 import com.ab.piggybank.DetailDebtActivity;
 import com.ab.piggybank.R;
+import com.ab.piggybank.RestoreRelationships;
 import com.ab.piggybank.Utils;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.github.clans.fab.FloatingActionMenu;
 import com.makeramen.roundedimageview.RoundedImageView;
+
 import java.text.DecimalFormat;
 
 public class MainDebtActivity extends AppCompatActivity {
@@ -170,9 +175,23 @@ public class MainDebtActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_debt_activity_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+        }
+        if (item.getItemId() == R.id.restoreRelationships) {
+            if (dbHelper.getDeletedDebtRelationships().getCount() != 0) {
+                Intent i = new Intent(this, RestoreRelationships.class);
+                startActivity(i);
+            }else {
+                Toast.makeText(this, R.string.no_deleted_debt_relationships,Toast.LENGTH_LONG).show();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -361,7 +380,7 @@ public class MainDebtActivity extends AppCompatActivity {
                                 if (which == 1) {
                                     dbHelper.deleteDebtRelationship(id);
                                     ListView listView = (ListView) findViewById(R.id.debt_relationships);
-                                    Snackbar snackbar = Snackbar.make((View) listView.getParent(),getString(R.string.deleted),Snackbar.LENGTH_LONG);
+                                    Snackbar snackbar = Snackbar.make((View) listView.getParent(), getString(R.string.deleted), Snackbar.LENGTH_LONG);
                                     snackbar.setAction("Undo", new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
