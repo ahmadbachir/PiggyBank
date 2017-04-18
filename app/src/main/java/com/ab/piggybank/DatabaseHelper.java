@@ -333,7 +333,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public Cursor getDebtRelationshipAtId(long id){
+    public Cursor getDebtRelationshipAtId(long id) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_5, null, COLUMN_ID + " = " + id, null, null, null, null);
         return cursor;
@@ -375,6 +375,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLENAME_5, contentValues, COLUMN_ID + " = " + id, null);
     }
 
+
+
     public void insertDebtRelationship(int picId, String name) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -390,6 +392,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_METHOD_USABLE, 0);
         db.update(TABLENAME_5, contentValues, COLUMN_ID + " = " + id, null);
     }
+
     public void unDeleteDebtRelationship(long id) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -413,7 +416,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getDebtTransactionsOfRelationshipNew(long id) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLENAME_6 + " WHERE " + COLUMN_WHICH_RELATIONSHIP + " = " + id,null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLENAME_6 + " WHERE " + COLUMN_WHICH_RELATIONSHIP + " = " + id, null);
         return cursor;
     }
 
@@ -443,11 +446,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLENAME_6, contentValues, COLUMN_ID + " = " + id, null);
     }
 
-    public Cursor getDebtTransactionAtID(long id){
+    public Cursor getDebtTransactionAtID(long id) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLENAME_6,null,COLUMN_ID + " = " + id,null,null,null,null);
+        Cursor cursor = db.query(TABLENAME_6, null, COLUMN_ID + " = " + id, null, null, null, null);
         return cursor;
     }
-
+    public Cursor returnedARowWithTheSameName(String name) {
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.query(TABLENAME_5, new String[]{COLUMN_ID,COLUMN_RELATIONSHIP_NAME}, COLUMN_RELATIONSHIP_NAME + " = '" + name+"'", null, null, null, null);
+        return cursor;
+    }
 
 }

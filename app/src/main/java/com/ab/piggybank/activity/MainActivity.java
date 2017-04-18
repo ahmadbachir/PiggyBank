@@ -23,6 +23,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
-
+//// TODO: 4/19/2017 change font of evry activity 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,10 +86,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setDefaultFontPath("Cabin-Regular.ttf")
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
+        SpannableString title = new SpannableString(getString(R.string.app_name).toUpperCase());
+        title.setSpan(Typeface.createFromAsset(getAssets(),"SourceSansPro-Regular.ttf"),0,title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        getSupportActionBar().setTitle(title);
         final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
         floatingActionMenu.setOnMenuButtonClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +109,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), AddTransactionActivity.class);
                 startActivity(i);
+                floatingActionMenu.toggle(true);
+                if (isActionMenuExpanded) {
+                    final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
+                    ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
+                    imageView.animate().alpha(0).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+                    isActionMenuExpanded = false;
+                    floatingActionMenu.toggle(true);
+                    imageView.setClickable(false);
+                }
+
             }
         });
         com.github.clans.fab.FloatingActionButton floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab2);
@@ -112,6 +127,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainDebtActivity.class);
                 startActivity(i);
+                floatingActionMenu.toggle(true);
+                if (isActionMenuExpanded) {
+                    final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
+                    ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
+                    imageView.animate().alpha(0).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+                    isActionMenuExpanded = false;
+                    floatingActionMenu.toggle(true);
+                    imageView.setClickable(false);
+                }
             }
         });
 
@@ -126,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClickMenu() {
         if (!isActionMenuExpanded) {
             ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
-            if(!imageView.isClickable()){
+            if (!imageView.isClickable()) {
                 imageView.setClickable(true);
             }
             imageView.animate().alpha(0.7f).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
@@ -311,11 +335,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 PieDataSet pieDataSet = new PieDataSet(pieEntries, "Categories");
                 pieDataSet.setColors(new int[]{Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E")});
-                pieDataSet.setValueTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                pieDataSet.setValueTextColor(getResources().getColor(android.R.color.white));
                 pieDataSet.setValueTextSize(12);
                 PieData pieData = new PieData(pieDataSet);
                 pieChart.setData(pieData);
-                pieChart.setEntryLabelColor(getResources().getColor(android.R.color.tertiary_text_light));
+                pieChart.setEntryLabelColor(getResources().getColor(android.R.color.white));
                 pieChart.setEntryLabelTextSize(12);
                 Description desc = new Description();
                 desc.setTextSize(0);
@@ -480,7 +504,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         viewHolder.title.setText(getString(R.string.week) + " " + (position + 1));
                 }
-                Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"coolvetica_rg.ttf");
+                Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "coolvetica_rg.ttf");
                 viewHolder.title.setTypeface(typeface);
 
                 LinearLayout list = viewHolder.list;

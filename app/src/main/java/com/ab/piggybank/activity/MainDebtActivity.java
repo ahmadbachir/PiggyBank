@@ -58,9 +58,10 @@ public class MainDebtActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_debt);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);//TODO Add restore activity
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle,true);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
@@ -205,7 +206,7 @@ public class MainDebtActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         ListView listView = (ListView) findViewById(R.id.debt_relationships);
-        listView.invalidateViews();
+        ((CursorAdapter) listView.getAdapter()).changeCursor(dbHelper.getDebtRelationships());
     }
 
     public void onClickMenu() {
@@ -243,7 +244,7 @@ public class MainDebtActivity extends AppCompatActivity {
         DatabaseHelper dbHelper;
 
         public CursorAdapter(Context context, Cursor c) {
-            super(context, c);
+            super(context, c,true);
             dbHelper = new DatabaseHelper(context);
         }
 
@@ -266,9 +267,9 @@ public class MainDebtActivity extends AppCompatActivity {
             final ViewHolder viewHolder = (ViewHolder) view.getTag();
             final Utils utils = new Utils();
 
-            double amountIngoing = dbHelper.sumOfDebtRelationIngoing(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)));
+            double amountIngoing = dbHelper.sumOfDebtRelationIngoing(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)));
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            double amountOutgoing = dbHelper.sumOfDebtRelationOutgoing(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)));
+            double amountOutgoing = dbHelper.sumOfDebtRelationOutgoing(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)));
             String currency = getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 0) - 1];
             String amountInString;
             String amountOutString;
@@ -290,18 +291,19 @@ public class MainDebtActivity extends AppCompatActivity {
                 DecimalFormat decimalFormat = new DecimalFormat("#.##");
                 amountOutString = decimalFormat.format(amountOutgoing);
             }
-            final int id = (int) cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID));
+            final int id = (int) cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID));
             viewHolder.amountIn.setText(amountInString + " " + currency);
             viewHolder.amountOut.setText(amountOutString + " " + currency);
-            if (cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)) == 1) {
+            if (cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)) == 1) {
                 viewHolder.edit.setVisibility(View.GONE);
                 viewHolder.go.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 viewHolder.name.setText(R.string.the_bank);
                 viewHolder.icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.bank), 120, 120, false));
             } else {
-                viewHolder.icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_ICON))]), 120, 120, false));
-                viewHolder.name.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_NAME)));
-
+                viewHolder.icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_RELATIONSHIP_ICON))]), 120, 120, false));
+                viewHolder.name.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_RELATIONSHIP_NAME)));
+                final String initialName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_RELATIONSHIP_NAME));
+                final int initialId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_RELATIONSHIP_ICON));
                 viewHolder.edit.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -317,11 +319,9 @@ public class MainDebtActivity extends AppCompatActivity {
                                     final pic1 pic = new pic1();
                                     TextView textView = (TextView) view1.findViewById(R.id.textView16);
                                     textView.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
-                                    final String initialName = cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_NAME));
-                                    final int initialId = cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_ICON));
                                     pic.id = initialId;
                                     final EditText nameEnter = (EditText) view1.findViewById(R.id.debt_name);
-                                    nameEnter.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_RELATIONSHIP_NAME)));
+                                    nameEnter.setText(initialName);
                                     final RoundedImageView roundedImageView = (RoundedImageView) view1.findViewById(R.id.relationship_icon);
                                     roundedImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[pic.id]), 120, 120, false));
                                     roundedImageView.setOnClickListener(new View.OnClickListener() {
@@ -362,14 +362,22 @@ public class MainDebtActivity extends AppCompatActivity {
                                             okButton.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
-                                                    if (pic.id == initialId && nameEnter.getText().toString() == initialName) {
+                                                    if (pic.id == initialId && nameEnter.getText().toString().equals(initialName)) {
                                                         Toast.makeText(context, R.string.you_didnt_change_anything, Toast.LENGTH_LONG).show();
                                                         return;
                                                     }
+                                                    Cursor cursor1 = dbHelper.returnedARowWithTheSameName(nameEnter.getText().toString());
+                                                    if(cursor1.moveToFirst() && cursor1.getLong(cursor1.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)) != cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))){
+                                                       Toast.makeText(context, R.string.theres_debt_relationship_with_same_name, Toast.LENGTH_LONG).show();
+                                                        cursor1.close();
+                                                        return;
+                                                    }
+                                                    cursor1.close();
                                                     dbHelper.updateDebtRelationship(id, pic.id, nameEnter.getText().toString());
-                                                    Intent intent = getIntent();
-                                                    finish();
-                                                    startActivity(intent);
+                                                    ListView listView = (ListView) findViewById(R.id.debt_relationships);
+                                                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
+                                                    listView.deferNotifyDataSetChanged();
+                                                    YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
                                                     dialog1.dismiss();
                                                 }
                                             });
@@ -380,12 +388,18 @@ public class MainDebtActivity extends AppCompatActivity {
                                 if (which == 1) {
                                     dbHelper.deleteDebtRelationship(id);
                                     ListView listView = (ListView) findViewById(R.id.debt_relationships);
+                                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
+                                    listView.deferNotifyDataSetChanged();
+                                    YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
                                     Snackbar snackbar = Snackbar.make((View) listView.getParent(), getString(R.string.deleted), Snackbar.LENGTH_LONG);
-                                    snackbar.setAction("Undo", new View.OnClickListener() {
+                                    snackbar.setAction(R.string.undo, new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             dbHelper.unDeleteDebtRelationship(id);
-                                            recreate();
+                                            ListView listView = (ListView) findViewById(R.id.debt_relationships);
+                                            YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
+                                            listView.deferNotifyDataSetChanged();
+                                            YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
                                         }
                                     });
                                     snackbar.show();
@@ -401,7 +415,7 @@ public class MainDebtActivity extends AppCompatActivity {
                 });
 
             }
-            Log.i("id", String.valueOf(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID))));
+            Log.i("id", String.valueOf(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))));
 
             viewHolder.go.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -14,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -34,6 +35,7 @@ public class RestoreRelationships extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
@@ -41,6 +43,14 @@ public class RestoreRelationships extends AppCompatActivity {
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         MyListAdapter listAdapter = new MyListAdapter(this,dbHelper.getDeletedDebtRelationships());
         listView.setAdapter(listAdapter);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private class MyListAdapter extends CursorAdapter{
@@ -91,6 +101,8 @@ public class RestoreRelationships extends AppCompatActivity {
                     else {
                         dbHelper.unDeleteDebtRelationship(id);
                         YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
+                        MyListAdapter listAdapter = (MyListAdapter) listView.getAdapter();
+                        listAdapter.changeCursor(dbHelper.getDeletedDebtRelationships());
                         listView.invalidateViews();
                         YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
                     }

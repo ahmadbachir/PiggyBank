@@ -5,6 +5,12 @@
     android:id="@+id/deletedRelationshipsList"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:divider="@color/transparent"
+    android:dividerHeight="10dp"
+    android:paddingBottom="16dp"
+    android:paddingEnd="32dp"
+    android:paddingStart="32dp"
+    android:paddingTop="16dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.ab.piggybank.RestoreRelationships"
     tools:showIn="@layout/activity_restore_relationships">

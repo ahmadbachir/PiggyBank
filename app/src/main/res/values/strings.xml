@@ -534,5 +534,7 @@
     <string name="restore_relationships">Restore Relationships</string>
     <string name="title_activity_restore_relationships">Restore Deleted Relationships</string>
     <string name="no_deleted_debt_relationships">You don\'t have any deleted debt relationships.</string>
+    <string name="undo">Undo</string>
+    <string name="theres_debt_relationship_with_same_name">There\'s a debt relationship with the same name.</string>
 
 </resources>

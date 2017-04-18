@@ -18,6 +18,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -299,6 +300,7 @@ public class AddDebtTransaction extends AppCompatActivity {
             else{
                 viewHolder.mainText.setText(R.string.the_bank);
             }
+            viewHolder.mainText.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
         }
 
         private class ViewHolder {
