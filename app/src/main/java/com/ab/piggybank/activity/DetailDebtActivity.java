@@ -1,4 +1,4 @@
-package com.ab.piggybank;
+package com.ab.piggybank.activity;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,13 +10,10 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,19 +23,35 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.ab.piggybank.DatabaseHelper;
+import com.ab.piggybank.R;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.Date;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class DetailDebtActivity extends AppCompatActivity {
     DatabaseHelper dbHelper;
-
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_debt);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
@@ -101,7 +114,9 @@ public class DetailDebtActivity extends AppCompatActivity {
                                 if (listView.getAdapter().getCount() == 1) {
                                     finish();
                                 } else {
-                                    listView.invalidateViews();
+                                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
+                                    ((CursorAdapter )listView.getAdapter()).changeCursor(dbHelper.getDebtTransactionsOfRelationship(id1));
+                                    YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
                                 }
 
 
@@ -150,12 +165,13 @@ public class DetailDebtActivity extends AppCompatActivity {
             }
             double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_AMOUNT));
             String amountString;
+            DecimalFormat decimalFormat = new DecimalFormat("#.##");
             if (amount > 1000000) {
-                amountString = (amount / 1000000) + " " + getString(R.string.mn);
+                amountString = decimalFormat.format(amount / 1000000) + " " + getString(R.string.mn);
             } else if (amount > 1000) {
-                amountString = amount / 1000 + " " + getString(R.string.k);
+                amountString = decimalFormat.format(amount / 1000) + " " + getString(R.string.k);
             } else {
-                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+
                 amountString = decimalFormat.format(amount);
             }
             viewHolder.desc.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DEBT_DESCRIPTION)));

@@ -81,17 +81,17 @@
             android:label="@string/title_activity_main_debt"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".DetailDebtActivity"
+            android:name=".activity.DetailDebtActivity"
             android:exported="true"
             android:label="@string/title_activity_detail_debt"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".AddDebtTransaction"
+            android:name=".activity.AddDebtTransaction"
             android:exported="true"
             android:label="@string/title_activity_add_debt_transaction"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".RestoreRelationships"
+            android:name=".activity.RestoreRelationships"
             android:label="@string/title_activity_restore_relationships"
             android:theme="@style/AppTheme"></activity>
     </application>

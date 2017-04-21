@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="400dp">
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="90dp"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/fromFlag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/united_arab_emirates"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/realtimeBlurView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:background="@drawable/round_blur_shape" />
+
+        <TextView
+            android:id="@+id/fromAmount"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="920.2 Mn"
+            android:textColor="@android:color/white" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/textView18"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="1dp"
+        android:layout_toEndOf="@+id/frameLayout"
+        android:background="@android:color/darker_gray" />
+
+    <TextView
+        android:id="@+id/textView20"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="1dp"
+        android:layout_toStartOf="@+id/frameLayout2"
+        android:background="@android:color/darker_gray" />
+
+    <FrameLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="90dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:id="@+id/toFlag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription=""
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/canada"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/realtimeBlurView1"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:background="@drawable/round_blur_shape" />
+
+        <TextView
+            android:id="@+id/toAmount"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="TextView"
+            android:textColor="@android:color/white" />
+    </FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/relative1"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@id/textView18"
+        android:layout_toStartOf="@+id/frameLayout2"
+        android:layout_above="@+id/frameLayout3">
+
+        <TextView
+            android:id="@+id/fromCurrencyAbv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/fromSpinner"
+            android:layout_marginTop="35dp"
+            android:gravity="center"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:text="United Arab Emirates Dirham"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <Spinner
+            android:id="@+id/fromSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="13dp"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:spinnerMode="dialog" />
+
+        <TextView
+            android:id="@+id/toCurrencyName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="13dp"
+            android:gravity="center"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:text="Canadian Dollar"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/toCurrencyABV"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_above="@+id/toCurrencyName"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="35dp"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/to"
+            app:srcCompat="@drawable/ic_down_arrow"
+            tools:ignore="ContentDescription" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@id/textView18"
+        android:layout_toStartOf="@+id/frameLayout2"
+        android:id="@+id/frameLayout3">
+
+        <ImageButton
+            android:id="@+id/dismiss"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical|start"
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_action_close" />
+
+        <ImageButton
+            android:id="@+id/done"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical|end"
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_action_done_dark_tick" />
+    </FrameLayout>
+
+</RelativeLayout>

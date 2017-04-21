@@ -36,11 +36,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ab.piggybank.AddDebtTransaction;
 import com.ab.piggybank.DatabaseHelper;
-import com.ab.piggybank.DetailDebtActivity;
 import com.ab.piggybank.R;
-import com.ab.piggybank.RestoreRelationships;
 import com.ab.piggybank.Utils;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -49,16 +46,27 @@ import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.text.DecimalFormat;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class MainDebtActivity extends AppCompatActivity {
     boolean isActionMenuExpanded = false;
     DatabaseHelper dbHelper;
-
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_debt);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle,true);
@@ -273,22 +281,22 @@ public class MainDebtActivity extends AppCompatActivity {
             String currency = getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 0) - 1];
             String amountInString;
             String amountOutString;
+            DecimalFormat decimalFormat = new DecimalFormat("#.##");
             if (amountIngoing > 1000000) {
-                amountInString = (amountIngoing / 1000000) + " " + getString(R.string.mn);
+                amountInString = decimalFormat.format(amountIngoing / 1000000) + " " + getString(R.string.mn);
             } else if (amountIngoing > 1000) {
-                amountInString = amountIngoing / 1000 + " " + getString(R.string.k);
+                amountInString = decimalFormat.format(amountIngoing / 1000) + " " + getString(R.string.k);
             } else {
-                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+
                 amountInString = decimalFormat.format(amountIngoing);
             }
 
 
             if (amountOutgoing > 1000000) {
-                amountOutString = (amountOutgoing / 1000000) + " " + getString(R.string.mn);
+                amountOutString = decimalFormat.format(amountOutgoing / 1000000) + " " + getString(R.string.mn);
             } else if (amountOutgoing > 1000) {
-                amountOutString = amountOutgoing / 1000 + " " + getString(R.string.k);
+                amountOutString = decimalFormat.format(amountOutgoing / 1000) + " " + getString(R.string.k);
             } else {
-                DecimalFormat decimalFormat = new DecimalFormat("#.##");
                 amountOutString = decimalFormat.format(amountOutgoing);
             }
             final int id = (int) cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID));

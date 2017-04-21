@@ -1,4 +1,4 @@
-package com.ab.piggybank;
+package com.ab.piggybank.activity;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -22,8 +22,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.ab.piggybank.DatabaseHelper;
+import com.ab.piggybank.R;
+import com.ab.piggybank.Utils;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class RestoreRelationships extends AppCompatActivity {
 
@@ -35,7 +41,11 @@ public class RestoreRelationships extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
@@ -44,7 +54,10 @@ public class RestoreRelationships extends AppCompatActivity {
         MyListAdapter listAdapter = new MyListAdapter(this,dbHelper.getDeletedDebtRelationships());
         listView.setAdapter(listAdapter);
     }
-
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == android.R.id.home){

@@ -19,7 +19,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ab.piggybank.AddDebtTransaction;
 import com.ab.piggybank.R;
 
 import java.text.DecimalFormat;

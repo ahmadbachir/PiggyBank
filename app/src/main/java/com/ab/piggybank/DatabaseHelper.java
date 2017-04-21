@@ -60,6 +60,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLENAME_2);
         db.execSQL("DROP TABLE IF EXISTS " + TABLENAME_3);
         db.execSQL("DROP TABLE IF EXISTS " + TABLENAME_4);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLENAME_5);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLENAME_6);
         onCreate(db);
     }
 
@@ -191,7 +193,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLENAME_4, new String[]{COLUMN_ID, COLUMN_ABV}, null, null, null, null, COLUMN_ABV + " ASC");
         return cursor;
     }
-
+    public Cursor getCurrencyNameEng() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_4, new String[]{COLUMN_ID, COLUMN_CURRENCY_NAME}, null, null, null, null, COLUMN_CURRENCY_NAME + " ASC");
+        return cursor;
+    }
     public Cursor getMethodTable() {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_3, null, null, null, null, null, null, null);
@@ -231,6 +237,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLENAME_1, null, COLUMN_DATE_DAY + " BETWEEN " + firstDay + " AND " + lastDay + " AND " + COLUMN_DATE_MONTH + " = " + month + " AND " + COLUMN_DATE_YEAR + " = " + year, null, COLUMN_DATE_DAY, null, COLUMN_DATE_DAY + " ASC");
         return cursor;
+    }
+
+    public double getAmount(long id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_2,new String[]{COLUMN_RATE}, COLUMN_ID + " = " + id,null,null,null,null);
+        cursor.moveToPosition(0);
+        return cursor.getDouble(0);
     }
 
     public Cursor getTransactionsInDay(int day, int month, int year) {

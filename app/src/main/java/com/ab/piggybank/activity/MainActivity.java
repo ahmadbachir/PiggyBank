@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
-//// TODO: 4/19/2017 change font of evry activity 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,13 +86,16 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("Cabin-Regular.ttf")
+                .setDefaultFontPath("SourceSansPro-Regular.ttf")
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
-        SpannableString title = new SpannableString(getString(R.string.app_name).toUpperCase());
-        title.setSpan(Typeface.createFromAsset(getAssets(),"SourceSansPro-Regular.ttf"),0,title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        getSupportActionBar().setTitle(title);
+        TextView title = (TextView) findViewById(R.id.title);
+        getSupportActionBar().setTitle("");
+        Typeface titleFont = Typeface.createFromAsset(getAssets(), "Audrey-Medium.ttf");
+        title.setText(getString(R.string.app_name).toUpperCase());
+        title.setTypeface(titleFont);
+
         final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
         floatingActionMenu.setOnMenuButtonClickListener(new View.OnClickListener() {
             @Override

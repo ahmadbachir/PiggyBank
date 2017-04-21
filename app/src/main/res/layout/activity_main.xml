@@ -19,7 +19,18 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:subtitleTextColor="#424242"
-            app:titleTextColor="#424242" />
+            app:titleTextColor="#424242">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|start"
+                android:text=""
+                android:textColor="#424242"
+                android:textSize="18sp" />
+        </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/main_tablayout"
@@ -40,7 +51,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0"
-        app:srcCompat="@android:color/white" />
+        app:srcCompat="@android:color/white"
+        tools:ignore="ContentDescription" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -49,13 +61,13 @@
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/mainFloatingActionMenu"
             android:layout_width="wrap_content"
-            app:menu_colorNormal="@color/colorAccent"
-            app:fab_showAnimation="@anim/fade_in"
-            app:fab_hideAnimation="@anim/fade_out"
-            app:menu_colorPressed="@color/colorAccent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin">
+            android:layout_margin="@dimen/fab_margin"
+            app:fab_hideAnimation="@anim/fade_out"
+            app:fab_showAnimation="@anim/fade_in"
+            app:menu_colorNormal="@color/colorAccent"
+            app:menu_colorPressed="@color/colorAccent">
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab1"
@@ -65,6 +77,7 @@
                 app:fab_colorNormal="@color/colorAccent"
                 app:fab_colorPressed="@color/colorAccent"
                 app:fab_label="@string/add_transaction" />
+
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab2"
                 android:layout_width="wrap_content"
