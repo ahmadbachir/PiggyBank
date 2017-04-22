@@ -155,10 +155,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLENAME_1, contentValues, COLUMN_ID + " = " + id, null);
     }
 
+    public Cursor getPaymentMethodAtId(long id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_3,null, COLUMN_ID + " = " + id,null,null,null,null);
+        cursor.moveToPosition(0);
+        return cursor;
+    }
+
     public Cursor getCurrencyRate() {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(false, TABLENAME_2, null, null, null, null, null, null, null);
         return cursor;
+    }
+
+    public Cursor getPaymentMethodsOtherThanCash(){
+        SQLiteDatabase db = getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLENAME_3 + " WHERE " + COLUMN_METHOD_USABLE + " = 1 LIMIT -1 OFFSET 1",null);
     }
 
     public Cursor getTransaction(long id) {
@@ -223,6 +235,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_METHOD_TYPE_AFTER_SORT, posAfterSort);
         contentValues.put(COLUMN_METHOD_USABLE, 1);
         db.insert(TABLENAME_3, null, contentValues);
+    }
+    public void updatePaymentMethods(long id,String name, int posAfterSort, int type) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_PAYMENT_METHOD_NAME, name);
+        contentValues.put(COLUMN_METHOD_TYPE, type);
+        contentValues.put(COLUMN_METHOD_TYPE_AFTER_SORT, posAfterSort);
+        contentValues.put(COLUMN_METHOD_USABLE, 1);
+        db.update(TABLENAME_3,  contentValues, COLUMN_ID + " = " + id, null);
+    }
+
+    public void deletePaymentMethods(long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_METHOD_USABLE, 0);
+        db.update(TABLENAME_3,  contentValues, COLUMN_ID + " = " + id, null);
+    }
+    public void unDeletePaymentMethods(long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_METHOD_USABLE, 1);
+        db.update(TABLENAME_3,  contentValues, COLUMN_ID + " = " + id, null);
     }
 
     public void insertCurrencyDataENG(String name, String abv) {

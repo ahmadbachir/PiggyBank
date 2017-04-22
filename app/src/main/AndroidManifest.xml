@@ -92,8 +92,14 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.RestoreRelationships"
+            android:exported="true"
             android:label="@string/title_activity_restore_relationships"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".EditPaymentMethods"
+            android:label="@string/title_activity_edit_payment_methods"
+            android:exported="true"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

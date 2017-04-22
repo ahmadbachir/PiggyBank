@@ -537,6 +537,15 @@
     <string name="undo">Undo</string>
     <string name="theres_debt_relationship_with_same_name">There\'s a debt relationship with the same name.</string>
     <string name="to">To</string>
+    <string name="edit_payment_methods">Edit payment methods</string>
+    <string name="title_activity_edit_payment_methods">Edit Payment Methods</string>
+    <string name="add_payment_method">Add Payment Method</string>
+    <string name="create_new_payment_method">Create new payment method.</string>
+    <string name="need_name_to_proceed">You need to enter a name to proceed.</string>
+    <string name="you_need_to_choose_a_type_to_proceed">You need to choose a type to proceed.</string>
+    <string name="tap_the_button_to_add_a_payment_method">Tap the + button to add a payment method.</string>
+    <string name="string_tap_the_button_to_add_a_payment_method" />
+    <string name="you_don_t_have_any_payment_methods">You don\'t have any payment methods.</string>
 
 
 </resources>

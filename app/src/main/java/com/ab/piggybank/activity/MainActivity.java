@@ -27,6 +27,8 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ab.piggybank.DatabaseHelper;
+import com.ab.piggybank.EditPaymentMethods;
 import com.ab.piggybank.R;
 import com.ab.piggybank.Utils;
 import com.daimajia.androidanimations.library.Techniques;
@@ -92,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         );
         TextView title = (TextView) findViewById(R.id.title);
         getSupportActionBar().setTitle("");
+        getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle,true);
         Typeface titleFont = Typeface.createFromAsset(getAssets(), "Audrey-Medium.ttf");
         title.setText(getString(R.string.app_name).toUpperCase());
         title.setTypeface(titleFont);
@@ -148,6 +152,24 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setOffscreenPageLimit(1);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.edit_methods){
+            Intent i = new Intent(this, EditPaymentMethods.class);
+            startActivity(i);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void onClickMenu() {
