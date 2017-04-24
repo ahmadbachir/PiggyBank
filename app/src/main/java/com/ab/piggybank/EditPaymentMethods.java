@@ -17,6 +17,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,6 +30,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -75,33 +77,35 @@ public class EditPaymentMethods extends AppCompatActivity {
         );
         dbHelper = new DatabaseHelper(this);
         getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle, true);
-        ListView listView = (ListView) findViewById(R.id.methods_list);
+        ListView listView = (ListView) findViewById(R.id.methodList);
         updateListStatus(true);
-
+        listView.setItemsCanFocus(true);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(),"Wuz gucci",Toast.LENGTH_LONG).show();
+            }
+        });
+        listView.setItemsCanFocus(true);
     }
 
     private void updateListStatus(boolean oncreate) {
-//        RelativeLayout emptyView = (RelativeLayout) findViewById(R.id.empty_view);
-//        emptyView.setClickable(false);
-        ListView listView = (ListView) findViewById(R.id.methods_list);
+        RelativeLayout emptyView = (RelativeLayout) findViewById(R.id.empty_view);
+        emptyView.setClickable(false);
+        ListView listView = (ListView) findViewById(R.id.methodList);
         Cursor cursor = dbHelper.getPaymentMethodsOtherThanCash();
         if (cursor.getCount() > 0) {
             if (oncreate) {
-//                emptyView.setAlpha(0f);
-//                emptyView.setVisibility(View.GONE);
-                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                Log.i("onItemClick", "onItemClick");
-                            }
-                        });
+                emptyView.setAlpha(0f);
+                emptyView.setVisibility(View.GONE);
+
 
 
             } else {
-//                if (emptyView.getAlpha() != 0f) {
-//                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(emptyView);
-//                    emptyView.setVisibility(View.GONE);
-//                }
+                if (emptyView.getAlpha() != 0f) {
+                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(emptyView);
+                    emptyView.setVisibility(View.GONE);
+                }
                 YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
             }
 
@@ -109,12 +113,12 @@ public class EditPaymentMethods extends AppCompatActivity {
             listView.setAdapter(listAdapter);
             YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
         } else {
-//            if (emptyView.getVisibility() == View.GONE) {
-//                emptyView.setVisibility(View.VISIBLE);
-//            }
+            if (emptyView.getVisibility() == View.GONE) {
+                emptyView.setVisibility(View.VISIBLE);
+            }
             if (!oncreate) {
 
-//                YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(emptyView);
+                YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(emptyView);
                 YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(listView);
             }
 
@@ -253,11 +257,12 @@ public class EditPaymentMethods extends AppCompatActivity {
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = getLayoutInflater().inflate(R.layout.list_item_2texts_and_pic, parent, false);
+            View view = getLayoutInflater().inflate(R.layout.edit_payment_method_item_layout, parent, false);
             ViewHolder viewHolder = new ViewHolder();
             viewHolder.icon = (ImageView) view.findViewById(R.id.item_icon);
             viewHolder.mainText = (TextView) view.findViewById(R.id.item_text);
             viewHolder.subText = (TextView) view.findViewById(R.id.item_subText);
+            viewHolder.moreButton = (ImageButton) view.findViewById(R.id.moreButton);
             view.setTag(viewHolder);
             return view;
         }
@@ -285,16 +290,49 @@ public class EditPaymentMethods extends AppCompatActivity {
             viewHolder.mainText.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
             viewHolder.subText.setText(getResources().getStringArray(R.array.paymentMethodNames)[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]);
             viewHolder.subText.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+            final long id = cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID));
+            viewHolder.moreButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showFilterPopup(v,id);
+                }
+            });
         }
 
         private class ViewHolder {
             ImageView icon;
             TextView mainText;
             TextView subText;
+            ImageButton moreButton;
         }
 
+        private void showFilterPopup(View v, final long id) {
+            PopupMenu popup = new PopupMenu(EditPaymentMethods.this, v);
+            // Inflate the menu from xml
+            popup.getMenuInflater().inflate(R.menu.edit_payment_method_item_menu, popup.getMenu());
+            // Setup menu item selection
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.edit:
+                            showEditMethodDialog(id);
+                            return true;
+                        case R.id.delete:
+                            dbHelper.deletePaymentMethods(id);
+                            updateListStatus(false);
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+            });
+            // Handle dismissal with: popup.setOnDismissListener(...);
+            // Show the menu
+            popup.show();
+        }
 
     }
+
 
     class spinnerAdapter extends ArrayAdapter<PaymentMethod> {
         List<MethodType> methodTypes = new ArrayList<>();

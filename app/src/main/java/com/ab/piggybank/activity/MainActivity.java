@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         addOneYear();
-
+        //TODO: fix payment method edit bug
         com.github.clans.fab.FloatingActionButton floatingActionButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab1);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override

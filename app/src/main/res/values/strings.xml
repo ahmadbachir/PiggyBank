@@ -546,6 +546,8 @@
     <string name="tap_the_button_to_add_a_payment_method">Tap the + button to add a payment method.</string>
     <string name="string_tap_the_button_to_add_a_payment_method" />
     <string name="you_don_t_have_any_payment_methods">You don\'t have any payment methods.</string>
+    <string name="more">more</string>
+    <string name="restore_methods">Restore methods</string>
 
 
 </resources>
