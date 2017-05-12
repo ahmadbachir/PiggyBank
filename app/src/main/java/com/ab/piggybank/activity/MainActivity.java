@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,22 +22,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.ab.piggybank.DatabaseHelper;
 import com.ab.piggybank.EditPaymentMethods;
 import com.ab.piggybank.R;
@@ -58,7 +51,6 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.LargeValueFormatter;
-
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -88,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Log.d("debug", "started mainActivity");
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("SourceSansPro-Regular.ttf")
                 .setFontAttrId(R.attr.fontPath)
@@ -95,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         );
         TextView title = (TextView) findViewById(R.id.title);
         getSupportActionBar().setTitle("");
-        getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle,true);
+        getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle, true);
         Typeface titleFont = Typeface.createFromAsset(getAssets(), "Audrey-Medium.ttf");
         title.setText(getString(R.string.app_name).toUpperCase());
         title.setTypeface(titleFont);
@@ -109,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         addOneYear();
-        //TODO: fix payment method edit bug
         com.github.clans.fab.FloatingActionButton floatingActionButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab1);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu,menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -164,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.edit_methods){
+        if (id == R.id.edit_methods) {
             Intent i = new Intent(this, EditPaymentMethods.class);
             startActivity(i);
         }
@@ -320,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                 BarChart lineChart = (BarChart) view.findViewById(R.id.expenseBarChart);
                 List<BarEntry> entries = new ArrayList<>();
                 for (int i = 0; i < daysInMonthExpense.getCount(); i++) {
-                    entries.add(new BarEntry(daysInMonthExpense.getInt(daysInMonthExpense.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), dbHelper.sumOfExpenseTransactionsDay(daysInMonthExpense.getInt(daysInMonthExpense.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), getArguments().getInt("month"), getArguments().getInt("year"))));
+                    entries.add(new BarEntry(daysInMonthExpense.getInt(daysInMonthExpense.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_DAY)), dbHelper.sumOfExpenseTransactionsDay(daysInMonthExpense.getInt(daysInMonthExpense.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_DAY)), getArguments().getInt("month"), getArguments().getInt("year"))));
                     daysInMonthExpense.moveToNext();
                 }
 
@@ -359,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 PieDataSet pieDataSet = new PieDataSet(pieEntries, "Categories");
-                pieDataSet.setColors(new int[]{Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E")});
+                pieDataSet.setColors(Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E"));
                 pieDataSet.setValueTextColor(getResources().getColor(android.R.color.white));
                 pieDataSet.setValueTextSize(12);
                 PieData pieData = new PieData(pieDataSet);
@@ -392,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
                 List<BarEntry> entries = new ArrayList<>();
 
                 for (int i = 0; i < daysInMonthIncome.getCount(); i++) {
-                    entries.add(new BarEntry(daysInMonthIncome.getInt(daysInMonthIncome.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), dbHelper.sumOfIncomeTransactionsDay(daysInMonthIncome.getInt(daysInMonthIncome.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), getArguments().getInt("month"), getArguments().getInt("year"))));
+                    entries.add(new BarEntry(daysInMonthIncome.getInt(daysInMonthIncome.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_DAY)), dbHelper.sumOfIncomeTransactionsDay(daysInMonthIncome.getInt(daysInMonthIncome.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_DAY)), getArguments().getInt("month"), getArguments().getInt("year"))));
                     daysInMonthIncome.moveToNext();
                 }
 
@@ -432,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 PieDataSet pieDataSet = new PieDataSet(pieEntries, "Categories");
-                pieDataSet.setColors(new int[]{Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E")});
+                pieDataSet.setColors(Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E"));
                 pieDataSet.setValueTextColor(getResources().getColor(android.R.color.white));
                 pieDataSet.setValueTextSize(12);
                 PieData pieData = new PieData(pieDataSet);
@@ -529,17 +521,19 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         viewHolder.title.setText(getString(R.string.week) + " " + (position + 1));
                 }
-                Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "coolvetica_rg.ttf");
+                Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Bold.ttf");
                 viewHolder.title.setTypeface(typeface);
-
                 LinearLayout list = viewHolder.list;
                 Cursor cursor = dbHelper.getDaysInWeek(weeks.get(position).firstDay, weeks.get(position).lastDay, weeks.get(position).month, weeks.get(position).year);
                 cursor.moveToPosition(0);
                 View view = null;
                 for (int i = 0; i < cursor.getCount(); i++) {
-                    list.addView(dayView(view, list, cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_DAY)), cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_MONTH)), cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_DATE_YEAR))));
+                    list.addView(dayView(view, list, cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_DAY)), cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_MONTH)), cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_YEAR))));
                     if (!cursor.isLast()) {
                         cursor.moveToNext();
+                    }
+                    else {
+                        cursor.close();
                     }
                 }
                 return convertView;
@@ -576,7 +570,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             v1 = transactionView(oneTransactionView, viewHolder.list, cursor);
                         }
-                        final long id = cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID));
+                        final long id = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID));
                         v1.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -585,11 +579,15 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(i);
                             }
                         });
+                        final double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_AMOUNT));
+                        final int type = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ENTRYTYPE));
+                        final int cat = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY));
+                        final int subCat = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUBCATEGORY));
                         v1.setOnLongClickListener(new View.OnLongClickListener() {
                             @Override
                             public boolean onLongClick(View v) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                builder.setTitle(getResources().getString(R.string.what_would_you_like_to_do) + " " + id);
+                                builder.setTitle(getResources().getString(R.string.what_would_you_like_to_do));
                                 builder.setItems(new String[]{getString(R.string.edit), getString(R.string.delete)}, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -597,20 +595,16 @@ public class MainActivity extends AppCompatActivity {
                                             Intent i = new Intent(getActivity(), AddTransactionActivity.class);
                                             i.putExtra("editing", true);
                                             i.putExtra("id", id);
-                                            i.putExtra("amount", cursor.getDouble(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_AMOUNT)));
+                                            i.putExtra("amount", amount);
                                             i.putExtra("day", day);
                                             i.putExtra("month", month);
                                             i.putExtra("year", year);
-                                            i.putExtra("type", cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE)));
-                                            i.putExtra("cat", cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY)));
-                                            i.putExtra("subCat", cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_SUBCATEGORY)));
-                                            if (cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_ID)) == null) {
-                                                i.putExtra("spinnerPos", cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_ID)));
-                                            }
+                                            i.putExtra("type", type);
+                                            i.putExtra("cat", cat);
+                                            i.putExtra("subCat", subCat);
                                             startActivity(i);
-                                            getActivity().finish();
                                         } else {
-                                            dbHelper.deleteTransaction(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)));
+                                            dbHelper.deleteTransaction(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)));
                                             getActivity().finish();
                                             startActivity(getActivity().getIntent());
                                         }
@@ -621,19 +615,22 @@ public class MainActivity extends AppCompatActivity {
                                 return true;
                             }
                         });
-                        Log.i("onClick", String.valueOf(cursor.getLong(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID))));
+                        Log.i("onClick", String.valueOf(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))));
                         viewHolder.list.addView(v1);
 
                         if (!cursor.isLast()) {
                             cursor.moveToNext();
+                        } else {
+                            cursor.close();
                         }
 
                     }
-
-
                 }
+
                 return v;
             }
+
+
 
             private View transactionView(View v, ViewGroup parent, final Cursor cursor) {
                 if (v == null) {
@@ -648,9 +645,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 final TransactionViewHolder transactionViewHolder = (TransactionViewHolder) v.getTag();
                 final Utils utils = new Utils();
-                final int type = cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE));
-                final int cat = cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY));
-                final int subCat = cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_SUBCATEGORY));
+                final int type = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ENTRYTYPE));
+                final int cat = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY));
+                final int subCat = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUBCATEGORY));
                 if (subCat != -1) {
                     transactionViewHolder.mainText.setText(utils.categoryGroups(getActivity()).get(type).get(cat).getTransactionSubCategories().get(subCat).getName());
                     new AsyncTask<Void, Void, Bitmap>() {
@@ -684,7 +681,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }.execute();
                 }
-                double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_AMOUNT));
+                double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_AMOUNT));
                 String amountString;
                 if (type == 0) {
                     transactionViewHolder.subText.setText(getResources().getString(R.string.expense));
@@ -731,7 +728,7 @@ public class MainActivity extends AppCompatActivity {
         int month;
         int year;
 
-        public Month(int month, int year) {
+        Month(int month, int year) {
             this.month = month;
             this.year = year;
         }

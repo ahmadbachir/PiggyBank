@@ -548,6 +548,8 @@
     <string name="you_don_t_have_any_payment_methods">You don\'t have any payment methods.</string>
     <string name="more">more</string>
     <string name="restore_methods">Restore methods</string>
+    <string name="couldnt_get_method">We couldn\'t get the payment method you used for this transaction because you might have deleted it.</string>
+    <string name="main_activity_banner_ad">ca-app-pub-9146413012265377/3369371444</string>
 
 
 </resources>

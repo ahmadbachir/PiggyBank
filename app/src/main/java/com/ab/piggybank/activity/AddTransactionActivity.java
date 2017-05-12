@@ -167,6 +167,7 @@ public class AddTransactionActivity extends AppCompatActivity {
                 }
                 if (id != 0) {
                     i.putExtra("id", id);
+
                 }
 
                 i.putExtra("spinnerPos", spinner.getSelectedItemPosition());
@@ -179,8 +180,8 @@ public class AddTransactionActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position != spinnerPos) {
-                    spinnerPos = position;
+                if (id != spinnerPos) {
+                    spinnerPos = (int) id;
                     updateMethodIcon(position);
                 }
             }
@@ -264,7 +265,7 @@ public class AddTransactionActivity extends AppCompatActivity {
                 showCurrencyDialog();
             }
         });
-        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        final DatabaseHelper dbHelper = new DatabaseHelper(this);
         switch (Locale.getDefault().getDisplayLanguage()) {
             case "Arabic":
                 currencyTextView.setText(dbHelper.getABVENGString(preferences.getInt("country", 1)));
@@ -298,10 +299,22 @@ public class AddTransactionActivity extends AppCompatActivity {
             subCat = getIntent().getIntExtra("subCat", -1);
             updateCategoryView();
         }
-        if (getIntent().getStringExtra("spinnerPos") != null) {
-            spinnerPos = Integer.valueOf(getIntent().getStringExtra("spinnerPos"));
+
+        Log.i("on Resume", "run()");
+        if (editing) {
+            Log.i("on Resume", "got cursor");
+            updateSpinnerPos((int) id);
         }
         updateMethodSpinnerStatus();
+
+
+    }
+
+
+    private void updateSpinnerPos(int pos) {
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        spinnerPos = dbHelper.getPaymentMethodPostitionInTable(pos);
+        Log.i("updateSpinnerPos", String.valueOf(spinnerPos));
     }
 
     @Override
@@ -374,11 +387,11 @@ public class AddTransactionActivity extends AppCompatActivity {
 
             Cursor cursor = dbHelper.getCurrencyNameEng();
             cursor.moveToPosition(0);
-            int spinnerPos = 0;
+            int spinnerPos1 = 0;
             boolean foundSpinnerpos = false;
             while (!foundSpinnerpos) {
                 if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)) == preferences.getInt("country", 1)) {
-                    spinnerPos = cursor.getPosition();
+                    spinnerPos1 = cursor.getPosition();
                     foundSpinnerpos = true;
                 } else {
                     cursor.moveToNext();
@@ -386,7 +399,7 @@ public class AddTransactionActivity extends AppCompatActivity {
             }
             DialogSpinnerAdapter spinnerAdapter = new DialogSpinnerAdapter(this, cursor);
             fromCurrencyName.setAdapter(spinnerAdapter);
-            fromCurrencyName.setSelection(spinnerPos);
+            fromCurrencyName.setSelection(spinnerPos1);
 
             TextView toCurrencyName = (TextView) view.findViewById(R.id.toCurrencyName);
             toCurrencyName.setText(getResources().getStringArray(R.array.currencyName)[preferences.getInt("country", 1) - 1]);
@@ -467,8 +480,8 @@ public class AddTransactionActivity extends AppCompatActivity {
             final float scale = getResources().getDisplayMetrics().density;
             int px = (int) (400 * scale + 0.5f);
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, px);
-        }else {
-            Toast.makeText(this,R.string.amount_needs_to_more_than_zero,Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, R.string.amount_needs_to_more_than_zero, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -562,6 +575,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         if (isExpense()) {
             spinner.setEnabled(true);
             YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(overlay);
+
             spinner.setSelection(spinnerPos);
         } else {
             spinner.setEnabled(false);
@@ -601,13 +615,13 @@ public class AddTransactionActivity extends AppCompatActivity {
         Spinner spinner = (Spinner) findViewById(R.id.methodSpinner);
         if (!editing) {
             if (isExpense()) {
-                dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinner.getItemIdAtPosition(spinnerPos)));
+                dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinner.getSelectedItemId()));
             } else {
                 dbHelper.insertTransaction(amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), null);
             }
         } else {
             if (isExpense()) {
-                dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinner.getItemIdAtPosition(spinnerPos)));
+                dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), String.valueOf(spinner.getSelectedItemId()));
             } else {
                 dbHelper.updateTransaction(id, amount, type, cat, subCat, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR), null);
             }

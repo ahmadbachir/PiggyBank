@@ -80,12 +80,6 @@ public class EditPaymentMethods extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.methodList);
         updateListStatus(true);
         listView.setItemsCanFocus(true);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(),"Wuz gucci",Toast.LENGTH_LONG).show();
-            }
-        });
         listView.setItemsCanFocus(true);
     }
 
@@ -318,8 +312,26 @@ public class EditPaymentMethods extends AppCompatActivity {
                             showEditMethodDialog(id);
                             return true;
                         case R.id.delete:
-                            dbHelper.deletePaymentMethods(id);
-                            updateListStatus(false);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(EditPaymentMethods.this);
+                            builder.setTitle(R.string.warning);
+                            builder.setMessage("By deleting this payment method, you will be deleting all transactions with this method. Are you sure you want to proceed?");
+                            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dbHelper.deletePaymentMethods(id);
+                                    dbHelper.deleteTransactionWithPaymentMethod(id);
+                                    updateListStatus(false);
+                                }
+                            });
+                            builder.create().show();
+
+
                             return true;
                         default:
                             return false;

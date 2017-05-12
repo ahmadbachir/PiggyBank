@@ -169,9 +169,6 @@ public class DetailTransaction extends AppCompatActivity {
             i.putExtra("type", cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ENTRYTYPE)));
             i.putExtra("cat", cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_CATEGORY)));
             i.putExtra("subCat", cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_SUBCATEGORY)));
-            if (cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_ID)) == null) {
-                i.putExtra("spinnerPos", cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_ID)));
-            }
             startActivity(i);
             finish();
         }

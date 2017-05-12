@@ -92,7 +92,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_PAYMENT_METHOD_NAME + " TEXT, " +
                 COLUMN_METHOD_TYPE_AFTER_SORT + " INTEGER, " +
-                COLUMN_METHOD_USABLE + " NUMERIC, " +
                 COLUMN_METHOD_TYPE + " INTEGER)");
     }
 
@@ -170,7 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getPaymentMethodsOtherThanCash(){
         SQLiteDatabase db = getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLENAME_3 + " WHERE " + COLUMN_METHOD_USABLE + " = 1 LIMIT -1 OFFSET 1",null);
+        return db.rawQuery("SELECT * FROM " + TABLENAME_3  + " LIMIT -1 OFFSET 1",null);
     }
 
     public Cursor getTransaction(long id) {
@@ -233,7 +232,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_PAYMENT_METHOD_NAME, name);
         contentValues.put(COLUMN_METHOD_TYPE, type);
         contentValues.put(COLUMN_METHOD_TYPE_AFTER_SORT, posAfterSort);
-        contentValues.put(COLUMN_METHOD_USABLE, 1);
         db.insert(TABLENAME_3, null, contentValues);
     }
     public void updatePaymentMethods(long id,String name, int posAfterSort, int type) {
@@ -242,21 +240,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_PAYMENT_METHOD_NAME, name);
         contentValues.put(COLUMN_METHOD_TYPE, type);
         contentValues.put(COLUMN_METHOD_TYPE_AFTER_SORT, posAfterSort);
-        contentValues.put(COLUMN_METHOD_USABLE, 1);
         db.update(TABLENAME_3,  contentValues, COLUMN_ID + " = " + id, null);
     }
 
     public void deletePaymentMethods(long id) {
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_METHOD_USABLE, 0);
-        db.update(TABLENAME_3,  contentValues, COLUMN_ID + " = " + id, null);
+        db.delete(TABLENAME_3, COLUMN_ID + " = " + id, null);
     }
-    public void unDeletePaymentMethods(long id) {
+
+    public void deleteTransactionWithPaymentMethod(long id){
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_METHOD_USABLE, 1);
-        db.update(TABLENAME_3,  contentValues, COLUMN_ID + " = " + id, null);
+        db.delete(TABLENAME_1, COLUMN_PAYMENT_METHOD_ID + " = " + id, null);
     }
 
     public void insertCurrencyDataENG(String name, String abv) {
@@ -450,7 +444,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteDebtTransaction(long id) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_METHOD_USABLE, 0);
         db.delete(TABLENAME_6, COLUMN_ID + " = " + id, null);
     }
 
@@ -498,6 +491,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLENAME_6, null, COLUMN_ID + " = " + id, null, null, null, null);
         return cursor;
     }
+
+    public int getPaymentMethodPostitionInTable(long id){
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT COUNT (*) FROM " + TABLENAME_3 + " WHERE " + COLUMN_ID + " > " + id;
+        return (int) db.compileStatement(query).simpleQueryForLong();
+    }
+
     public Cursor returnedARowWithTheSameName(String name) {
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor = db.query(TABLENAME_5, new String[]{COLUMN_ID,COLUMN_RELATIONSHIP_NAME}, COLUMN_RELATIONSHIP_NAME + " = '" + name+"'", null, null, null, null);
