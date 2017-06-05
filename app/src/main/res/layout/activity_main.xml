@@ -2,66 +2,94 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mainCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.ab.piggybank.activity.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:subtitleTextColor="#424242"
-            app:titleTextColor="#424242">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical|start"
-                android:text=""
-                android:textColor="#424242"
-                android:textSize="18sp" />
-        </android.support.v7.widget.Toolbar>
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/main_tablayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@android:color/background_dark"
-            app:tabTextColor="@color/colorPrimaryDark">
-
-        </android.support.design.widget.TabLayout>
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_main" />
-
-    <ImageView
-        android:id="@+id/mainActivityOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0"
-        app:srcCompat="@android:color/white"
-        tools:ignore="ContentDescription" />
-
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/framelayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2dp">
+
+            <android.support.design.widget.AppBarLayout
+                android:id="@+id/appbarlayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/AppTheme.AppBarOverlay">
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    app:popupTheme="@style/AppTheme.PopupOverlay"
+                    app:subtitleTextColor="#424242"
+                    app:titleTextColor="#424242">
+
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical|start"
+                        android:text=""
+                        android:textColor="#424242"
+                        android:textSize="18sp" />
+                </android.support.v7.widget.Toolbar>
+
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/main_tablayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:tabMode="scrollable"
+                    app:tabSelectedTextColor="@android:color/background_dark"
+                    app:tabTextColor="@color/colorPrimaryDark">
+
+                </android.support.design.widget.TabLayout>
+
+            </android.support.design.widget.AppBarLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/framelayout2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/main_activity_ad"
+            android:layout_below="@+id/framelayout">
+
+            <include layout="@layout/content_main" />
+        </FrameLayout>
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/main_activity_ad"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_alignParentBottom="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/main_activity_banner_ad" />
+
+        <ImageView
+            android:id="@+id/mainActivityOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0"
+            app:srcCompat="@android:color/white"
+            tools:ignore="ContentDescription" />
 
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/mainFloatingActionMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_above="@+id/main_activity_ad"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             app:fab_hideAnimation="@anim/fade_out"
@@ -88,6 +116,6 @@
                 app:fab_label="@string/add_debt_transactions" />
         </com.github.clans.fab.FloatingActionMenu>
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

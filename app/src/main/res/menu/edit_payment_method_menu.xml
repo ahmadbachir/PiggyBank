@@ -3,13 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/restore"
-        android:icon="@drawable/ic_action_restore"
-        android:title="@string/restore_methods"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/add_payment_method"
-        android:icon="@drawable/ic_action_add_blue"
+        android:icon="@drawable/add_button_accent_color"
         android:title="@string/add_payment_method"
         app:showAsAction="always" />
 </menu>

@@ -356,7 +356,7 @@
         <item>Other</item>
     </string-array>
     <string name="title_activity_choose_country">ChooseCountryActivity</string>
-    <string name="almost_done">Almost done...</string>
+    <string name="almost_done">Almost done…</string>
     <string name="please_choose_the_country_or_region_with_the_currency_you_use">Please choose the currency you use.</string>
     <string name="tap_me_to_choose_your_currency">Tap me to choose your currency.</string>
     <string name="search_for_your_currency_here">Search for your currency here.</string>
@@ -387,7 +387,7 @@
     <string name="amount_needs_to_more_than_zero">Amount should be more than zero.</string>
     <string name="need_to_choose_a_category">You need to choose a category to proceed.</string>
     <string name="week">Week</string>
-    <string name="you_didn_t_add_any_transactios_this_month">You didn\'t add any transactios this month.</string>
+    <string name="you_didn_t_add_any_transactios_this_month">You didn\'t add any transactions this month.</string>
     <string name="what_would_you_like_to_do">What would you like to do?</string>
 
     <string-array name="expenseGroups">
@@ -550,6 +550,9 @@
     <string name="restore_methods">Restore methods</string>
     <string name="couldnt_get_method">We couldn\'t get the payment method you used for this transaction because you might have deleted it.</string>
     <string name="main_activity_banner_ad">ca-app-pub-9146413012265377/3369371444</string>
+    <string name="add_transaction_banner_ad">ca-app-pub-9146413012265377/7040214644</string>
+    <string name="detail_transaction_banner_ad">ca-app-pub-9146413012265377/4520080246</string>
+    <string name="currency_conversion_disabled">Currnecy conversion is disabled for this session, please connect to the internet and restart PiggyBank to enable it.</string>
 
 
 </resources>

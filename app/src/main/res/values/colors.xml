@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#BDBDBD</color>
-    <color name="colorAccent">#2979FF</color>
+    <color name="colorAccent">#a044ff</color>
     <color name="colorAccentInverse">#FFAB13</color>
     <color name="colorAccentLight">#448AFF</color>
     <color name="calcYellow">#01579B</color>

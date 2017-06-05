@@ -12,6 +12,14 @@
         android:paddingStart="16dp"
         android:paddingTop="8dp">
 
+        <TextView
+            android:id="@+id/textView24"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="@string/expense_day_by_day" />
+
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/expenseBarChart"
             android:layout_width="match_parent"
@@ -27,6 +35,14 @@
             android:layout_marginTop="10dp"
             android:background="@android:color/darker_gray" />
 
+        <TextView
+            android:id="@+id/textView25"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="@string/expense_category_percentages" />
+
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/expensePieChart"
             android:layout_width="match_parent"
@@ -41,6 +57,14 @@
             android:layout_marginStart="20dp"
             android:background="@android:color/darker_gray" />
 
+        <TextView
+            android:id="@+id/textView26"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="@string/income_day_by_day" />
+
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/incomeBarChart"
             android:layout_width="match_parent"
@@ -54,6 +78,14 @@
             android:layout_marginEnd="20dp"
             android:layout_marginStart="20dp"
             android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/textView27"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="@string/income_category_percentages" />
 
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/incomePieChart"
@@ -75,6 +107,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="vertical" />
+
+        <com.github.clans.fab.FloatingActionMenu
+            android:layout_width="wrap_content"
+            android:visibility="invisible"
+            android:clickable="false"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
 

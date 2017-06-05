@@ -141,6 +141,7 @@ public class Category extends AppCompatActivity {
                         i.putExtra("cat", groupPosition);
                         i.putExtra("subCat", -1);
                         startActivity(i);
+                        getActivity().finish();
                     } else {
                         if (list.isGroupExpanded(groupPosition)) {
                             list.collapseGroupWithAnimation(groupPosition);
@@ -163,6 +164,7 @@ public class Category extends AppCompatActivity {
                     i.putExtra("cat", groupPosition);
                     i.putExtra("subCat", childPosition);
                     startActivity(i);
+                    getActivity().finish();
                     return true;
                 }
             });

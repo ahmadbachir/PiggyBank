@@ -10,7 +10,7 @@
         android:layout_height="220dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="177dp"
+        android:layout_marginTop="140dp"
         android:tint="@android:color/darker_gray"
         app:srcCompat="@drawable/sad"
         tools:ignore="ContentDescription" />

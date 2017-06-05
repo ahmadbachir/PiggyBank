@@ -18,6 +18,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.ab.piggybank.DatabaseHelper;
 import com.ab.piggybank.EditPaymentMethods;
 import com.ab.piggybank.R;
@@ -42,6 +44,7 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -51,6 +54,9 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.LargeValueFormatter;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -68,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
     Calendar calendar = Calendar.getInstance();
     ArrayList<Month> months = new ArrayList<>();
     Boolean isActionMenuExpanded = false;
+    AdView adView;
+    Boolean createdBefore = false;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -80,16 +88,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Log.d("debug", "started mainActivity");
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("SourceSansPro-Regular.ttf")
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
+        adView = (AdView) findViewById(R.id.main_activity_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
         TextView title = (TextView) findViewById(R.id.title);
-        getSupportActionBar().setTitle("");
+        getSupportActionBar().setTitle(null);
         getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle, true);
-        Typeface titleFont = Typeface.createFromAsset(getAssets(), "Audrey-Medium.ttf");
+        Typeface titleFont = Typeface.createFromAsset(getAssets(), "VarelaRound-Regular.ttf");
         title.setText(getString(R.string.app_name).toUpperCase());
         title.setTypeface(titleFont);
 
@@ -108,16 +118,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), AddTransactionActivity.class);
                 startActivity(i);
-                floatingActionMenu.toggle(true);
-                if (isActionMenuExpanded) {
-                    final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
-                    ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
-                    imageView.animate().alpha(0).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
-                    isActionMenuExpanded = false;
-                    floatingActionMenu.toggle(true);
-                    imageView.setClickable(false);
-                }
-
+                finish();
             }
         });
         com.github.clans.fab.FloatingActionButton floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab2);
@@ -126,15 +127,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainDebtActivity.class);
                 startActivity(i);
-                floatingActionMenu.toggle(true);
-                if (isActionMenuExpanded) {
-                    final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.mainFloatingActionMenu);
-                    ImageView imageView = (ImageView) findViewById(R.id.mainActivityOverlay);
-                    imageView.animate().alpha(0).setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
-                    isActionMenuExpanded = false;
-                    floatingActionMenu.toggle(true);
-                    imageView.setClickable(false);
-                }
+                finish();
             }
         });
 
@@ -153,12 +146,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (createdBefore) {
+            ViewPager viewPager = (ViewPager) findViewById(R.id.main_ViewPager);
+            viewPager.invalidate();
+        }
+        if (adView != null) {
+            adView.resume();
+        }
+
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.edit_methods) {
             Intent i = new Intent(this, EditPaymentMethods.class);
             startActivity(i);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -195,17 +202,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
-    protected void onResume() {
-        super.onResume();
-        ViewPager viewPager = (ViewPager) findViewById(R.id.main_ViewPager);
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), months);
-        viewPager.setAdapter(viewPagerAdapter);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
-        tabLayout.setupWithViewPager(viewPager);
+    protected void onPause() {
+        super.onPause();
+        if (adView != null) {
+            adView.pause();
+        }
+
     }
 
-    private class ViewPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (adView != null) {
+            adView.destroy();
+        }
+    }
+
+    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
         ArrayList<Month> months;
         DatabaseHelper dbHelper;
 
@@ -321,11 +336,12 @@ public class MainActivity extends AppCompatActivity {
                 dataSet.setHighlightEnabled(true);
                 BarData barData = new BarData(dataSet);
                 dataSet.setValueFormatter(new LargeValueFormatter());
-                dataSet.setColor(getResources().getColor(R.color.colorAccentLight));
+                lineChart.getLegend().setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
+                dataSet.setColor(getResources().getColor(R.color.colorAccent));
+                barData.setValueTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
                 lineChart.setData(barData);
                 lineChart.setTouchEnabled(false);
                 XAxis xAxis = lineChart.getXAxis();
-                xAxis.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
                 xAxis.setGridColor(Color.TRANSPARENT);
                 xAxis.setGranularity(1f);
                 YAxis yAxisLeft = lineChart.getAxisLeft();
@@ -335,12 +351,12 @@ public class MainActivity extends AppCompatActivity {
                 yAxisLeft.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
                 yAxisRight.setTextColor(Color.TRANSPARENT);
                 Description description = new Description();
-                description.setText(getResources().getString(R.string.expense_day_by_day));
-                description.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
-                description.setTextSize(12f);
+                description.setText("");
                 lineChart.setDescription(description);
                 lineChart.invalidate();
-
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(lineChart);
+                TextView textView3 = (TextView) view.findViewById(R.id.textView24);
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(textView3);
                 PieChart pieChart = (PieChart) view.findViewById(R.id.expensePieChart);
                 List<PieEntry> pieEntries = new ArrayList<>();
                 Utils utils = new Utils();
@@ -350,10 +366,14 @@ public class MainActivity extends AppCompatActivity {
                         pieEntries.add(new PieEntry(percentage, utils.expenseGroups(getActivity()).get(i).getName()));
                     }
                 }
+                Legend legend = pieChart.getLegend();
+                legend.setEnabled(false);
                 PieDataSet pieDataSet = new PieDataSet(pieEntries, "Categories");
-                pieDataSet.setColors(Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E"));
+                pieDataSet.setColors(getResources().getColor(R.color.colorAccent));
                 pieDataSet.setValueTextColor(getResources().getColor(android.R.color.white));
                 pieDataSet.setValueTextSize(12);
+                pieDataSet.setSliceSpace(1.5f);
+                pieChart.setEntryLabelTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
                 PieData pieData = new PieData(pieDataSet);
                 pieChart.setData(pieData);
                 pieChart.setEntryLabelColor(getResources().getColor(android.R.color.white));
@@ -363,8 +383,11 @@ public class MainActivity extends AppCompatActivity {
                 desc.setText("");
                 pieChart.setDescription(desc);
                 pieChart.setUsePercentValues(true);
-                pieChart.setCenterText(getResources().getString(R.string.expense_category_percentages));
+                pieChart.setCenterText("");
                 pieChart.invalidate();
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(pieChart);
+                TextView textView4 = (TextView) view.findViewById(R.id.textView25);
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(textView4);
 
             } else {
                 BarChart lineChart = (BarChart) view.findViewById(R.id.expenseBarChart);
@@ -375,6 +398,10 @@ public class MainActivity extends AppCompatActivity {
                 textView.setVisibility(GONE);
                 TextView textView1 = (TextView) view.findViewById(R.id.textView9);
                 textView1.setVisibility(GONE);
+                TextView textView2 = (TextView) view.findViewById(R.id.textView25);
+                textView2.setVisibility(GONE);
+                TextView textView3 = (TextView) view.findViewById(R.id.textView24);
+                textView3.setVisibility(GONE);
 
             }
             daysInMonthExpense.close();
@@ -393,11 +420,12 @@ public class MainActivity extends AppCompatActivity {
                 dataSet.setHighlightEnabled(true);
                 BarData barData = new BarData(dataSet);
                 dataSet.setValueFormatter(new LargeValueFormatter());
-                dataSet.setColor(getResources().getColor(R.color.colorAccentLight));
+                dataSet.setColor(getResources().getColor(R.color.colorAccent));
                 lineChart.setData(barData);
+                barData.setValueTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
                 lineChart.setTouchEnabled(false);
+                lineChart.getLegend().setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
                 XAxis xAxis = lineChart.getXAxis();
-                xAxis.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
                 xAxis.setGridColor(Color.TRANSPARENT);
                 xAxis.setGranularity(1f);
                 YAxis yAxisLeft = lineChart.getAxisLeft();
@@ -408,11 +436,14 @@ public class MainActivity extends AppCompatActivity {
                 yAxisLeft.setGranularity(1f);
                 yAxisRight.setTextColor(Color.TRANSPARENT);
                 Description description = new Description();
-                description.setText(getResources().getString(R.string.income_day_by_day));
+                description.setText("");
                 description.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
                 description.setTextSize(12f);
                 lineChart.setDescription(description);
                 lineChart.invalidate();
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(lineChart);
+                TextView textView3 = (TextView) view.findViewById(R.id.textView26);
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(textView3);
 
                 PieChart pieChart = (PieChart) view.findViewById(R.id.incomePieChart);
                 List<PieEntry> pieEntries = new ArrayList<>();
@@ -423,12 +454,16 @@ public class MainActivity extends AppCompatActivity {
                         pieEntries.add(new PieEntry(percentage, utils.incomeGroups(getActivity()).get(i).getName()));
                     }
                 }
+                Legend legend = pieChart.getLegend();
+                legend.setEnabled(false);
                 PieDataSet pieDataSet = new PieDataSet(pieEntries, "Categories");
-                pieDataSet.setColors(Color.parseColor("#B71C1C"), Color.parseColor("#880E4F"), Color.parseColor("#4A148C"), Color.parseColor("#311B92"), Color.parseColor("#1A237E"), Color.parseColor("#0D47A1"), Color.parseColor("#01579B"), Color.parseColor("#006064"), Color.parseColor("#1B5E20"), Color.parseColor("#33691E"));
+                pieDataSet.setColors(getResources().getColor(R.color.colorAccent));
                 pieDataSet.setValueTextColor(getResources().getColor(android.R.color.white));
                 pieDataSet.setValueTextSize(12);
+                pieDataSet.setSliceSpace(1.5f);
                 PieData pieData = new PieData(pieDataSet);
                 pieChart.setData(pieData);
+                pieChart.setEntryLabelTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
                 pieChart.setEntryLabelColor(getResources().getColor(android.R.color.white));
                 pieChart.setEntryLabelTextSize(12);
                 pieChart.setUsePercentValues(true);
@@ -436,8 +471,11 @@ public class MainActivity extends AppCompatActivity {
                 desc.setTextSize(0);
                 desc.setText("");
                 pieChart.setDescription(desc);
-                pieChart.setCenterText(getResources().getString(R.string.income_category_percentages));
+                pieChart.setCenterText("");
                 pieChart.invalidate();
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(pieChart);
+                TextView textView4 = (TextView) view.findViewById(R.id.textView27);
+                YoYo.with(Techniques.FadeInUp).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(textView4);
 
             } else {
                 BarChart lineChart = (BarChart) view.findViewById(R.id.incomeBarChart);
@@ -448,6 +486,10 @@ public class MainActivity extends AppCompatActivity {
                 textView.setVisibility(GONE);
                 TextView textView1 = (TextView) view.findViewById(R.id.textView13);
                 textView1.setVisibility(GONE);
+                TextView textView2 = (TextView) view.findViewById(R.id.textView27);
+                textView2.setVisibility(GONE);
+                TextView textView3 = (TextView) view.findViewById(R.id.textView26);
+                textView3.setVisibility(GONE);
             }
             daysInMonthIncome.close();
 
@@ -521,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         viewHolder.title.setText(getString(R.string.week) + " " + (position + 1));
                 }
-                Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Bold.ttf");
+                Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Semibold.ttf");
                 viewHolder.title.setTypeface(typeface);
                 LinearLayout list = viewHolder.list;
                 Cursor cursor = dbHelper.getDaysInWeek(weeks.get(position).firstDay, weeks.get(position).lastDay, weeks.get(position).month, weeks.get(position).year);
@@ -531,8 +573,7 @@ public class MainActivity extends AppCompatActivity {
                     list.addView(dayView(view, list, cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_DAY)), cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_MONTH)), cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_YEAR))));
                     if (!cursor.isLast()) {
                         cursor.moveToNext();
-                    }
-                    else {
+                    } else {
                         cursor.close();
                     }
                 }
@@ -577,6 +618,7 @@ public class MainActivity extends AppCompatActivity {
                                 Intent i = new Intent(getActivity(), DetailTransaction.class);
                                 i.putExtra("id", id);
                                 startActivity(i);
+                                getActivity().finish();
                             }
                         });
                         final double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_AMOUNT));
@@ -603,8 +645,9 @@ public class MainActivity extends AppCompatActivity {
                                             i.putExtra("cat", cat);
                                             i.putExtra("subCat", subCat);
                                             startActivity(i);
+                                            getActivity().finish();
                                         } else {
-                                            dbHelper.deleteTransaction(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)));
+                                            dbHelper.deleteTransaction(id);
                                             getActivity().finish();
                                             startActivity(getActivity().getIntent());
                                         }
@@ -629,7 +672,6 @@ public class MainActivity extends AppCompatActivity {
 
                 return v;
             }
-
 
 
             private View transactionView(View v, ViewGroup parent, final Cursor cursor) {
@@ -660,7 +702,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         protected void onPostExecute(Bitmap bitmap) {
                             transactionViewHolder.icon.setImageBitmap(bitmap);
-                            YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(transactionViewHolder.icon);
+                            YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_longAnimTime)).playOn(transactionViewHolder.icon);
                         }
                     }.execute();
 
@@ -677,7 +719,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         protected void onPostExecute(Bitmap bitmap) {
                             transactionViewHolder.icon.setImageBitmap(bitmap);
-                            YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(transactionViewHolder.icon);
+                            YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_longAnimTime)).playOn(transactionViewHolder.icon);
                         }
                     }.execute();
                 }

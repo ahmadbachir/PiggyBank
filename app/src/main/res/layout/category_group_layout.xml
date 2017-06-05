@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="70dp"
     android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/catIcon"
-        android:layout_width="80dp"
+        android:layout_width="70dp"
         android:layout_height="match_parent"
         android:padding="4dp"
         app:srcCompat="@color/transparent"
@@ -30,7 +30,7 @@
 
         <ImageView
             android:id="@+id/indicator"
-            android:layout_width="80dp"
+            android:layout_width="70dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"

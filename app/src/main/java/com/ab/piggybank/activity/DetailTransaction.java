@@ -30,6 +30,8 @@ import com.ab.piggybank.R;
 import com.ab.piggybank.Utils;
 import com.ab.piggybank.activity.AddTransactionActivity;
 import com.daimajia.easing.linear.Linear;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -43,7 +45,7 @@ public class DetailTransaction extends AppCompatActivity {
     long id;
     Cursor cursor;
     DatabaseHelper dbHelper = new DatabaseHelper(this);
-
+    AdView adView;
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
@@ -65,6 +67,10 @@ public class DetailTransaction extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        adView = (AdView) findViewById(R.id.DetailTransactionBannerAd);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
         getSupportActionBar().setTitle(getString(R.string.transaction) + " #" + id);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_close);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
@@ -156,6 +162,8 @@ public class DetailTransaction extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            Intent i = new Intent(this, MainActivity.class);
+            startActivity(i);
             finish();
         }
         if (item.getItemId() == R.id.edit) {
@@ -178,4 +186,29 @@ public class DetailTransaction extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onPause() {
+        if (adView!= null) {
+            adView.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adView!= null) {
+            adView.resume();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (adView!= null) {
+            adView.destroy();
+        }
+        super.onDestroy();
+    }
+    
 }

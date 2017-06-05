@@ -2,6 +2,7 @@ package com.ab.piggybank;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -38,6 +39,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ab.piggybank.activity.MainActivity;
 import com.ab.piggybank.activity.setup1.MethodType;
 import com.ab.piggybank.activity.setup1.setupActivity;
 import com.daimajia.androidanimations.library.Techniques;
@@ -131,6 +133,8 @@ public class EditPaymentMethods extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            Intent i = new Intent(this, MainActivity.class);
+            startActivity(i);
             finish();
         }
         if (item.getItemId() == R.id.add_payment_method) {

@@ -48,6 +48,8 @@ import com.ab.piggybank.Utils;
 import com.ab.piggybank.activity.setup1.setupActivity;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -70,6 +72,7 @@ public class AddTransactionActivity extends AppCompatActivity {
     boolean editing = false;
     long id = 0;
     int currencyID;
+    AdView adView;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -89,6 +92,9 @@ public class AddTransactionActivity extends AppCompatActivity {
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
+        adView = (AdView) findViewById(R.id.addTransactionBannerAd);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_close);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
@@ -219,6 +225,8 @@ public class AddTransactionActivity extends AppCompatActivity {
         public void bindView(View view, Context context, Cursor cursor) {
             ViewHolder viewHolder = (ViewHolder) view.getTag();
             viewHolder.name.setText(cursor.getString(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_PAYMENT_METHOD_NAME)));
+            viewHolder.name.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
+            viewHolder.type.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
             if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT)) != -1) {
                 if (viewHolder.type.getVisibility() == View.GONE) {
                     viewHolder.type.setVisibility(View.VISIBLE);
@@ -244,10 +252,30 @@ public class AddTransactionActivity extends AppCompatActivity {
         return datePickerDialog;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (adView != null) {
+            adView.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (adView != null) {
+            adView.destroy();
+        }
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (adView != null) {
+            adView.resume();
+        }
+
         ImageView imageView = (ImageView) findViewById(R.id.flagImage);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -300,10 +328,11 @@ public class AddTransactionActivity extends AppCompatActivity {
             updateCategoryView();
         }
 
-        Log.i("on Resume", "run()");
         if (editing) {
             Log.i("on Resume", "got cursor");
-            updateSpinnerPos((int) id);
+            Log.i("on Resume", String.valueOf(id));
+            updateSpinnerPos(dbHelper.getPaymentMethodOfTransactionAtId(id));
+
         }
         updateMethodSpinnerStatus();
 
@@ -311,7 +340,7 @@ public class AddTransactionActivity extends AppCompatActivity {
     }
 
 
-    private void updateSpinnerPos(int pos) {
+    private void updateSpinnerPos(long pos) {
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         spinnerPos = dbHelper.getPaymentMethodPostitionInTable(pos);
         Log.i("updateSpinnerPos", String.valueOf(spinnerPos));
@@ -319,6 +348,12 @@ public class AddTransactionActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent i = new Intent(this, MainActivity.class);
+            startActivity(i);
+            finish();
+        }
+
         if (item.getItemId() == R.id.done) {
             done();
         }
@@ -345,143 +380,147 @@ public class AddTransactionActivity extends AppCompatActivity {
 
 
     private void showCurrencyDialog() {
-        if (amount != 0) {
-            final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            View view = getLayoutInflater().inflate(R.layout.currency_dialog_layout, null, false);
-            final AlertDialog dialog = builder.create();
-            final Utils utils = new Utils();
-            final int toCurrency = preferences.getInt("country", 1);
-            final ImageView fromFlag = (ImageView) view.findViewById(R.id.fromFlag);
-            fromFlag.setImageResource(utils.flagIds()[preferences.getInt("country", 1) - 1]);
-            ImageView toFlag = (ImageView) view.findViewById(R.id.toFlag);
-            toFlag.setImageResource(utils.flagIds()[preferences.getInt("country", 1) - 1]);
-            final double afterAmount = amount;
-            TextView fromAmount = (TextView) view.findViewById(R.id.fromAmount);
-            String fromAmountString;
-            if (amount > 1000000) {
-                DecimalFormat decimalFormat = new DecimalFormat("#.#");
-                fromAmountString = decimalFormat.format(amount / 1000000) + " " + getString(R.string.mn);
-            } else if (amount > 1000) {
-                DecimalFormat decimalFormat = new DecimalFormat("#.#");
-                fromAmountString = decimalFormat.format(amount / 1000) + " " + getString(R.string.k);
-            } else {
-                DecimalFormat decimalFormat = new DecimalFormat("#.#");
-                fromAmountString = decimalFormat.format(amount);
-            }
-            fromAmount.setText(fromAmountString);
-            final TextView toAmount = (TextView) view.findViewById(R.id.toAmount);
-            String toAmountString;
-            if (afterAmount > 1000000) {
-                toAmountString = (afterAmount / 1000000) + " " + getString(R.string.mn);
-            } else if (afterAmount > 1000) {
-                toAmountString = afterAmount / 1000 + " " + getString(R.string.k);
-            } else {
-                DecimalFormat decimalFormat = new DecimalFormat("#.##");
-                toAmountString = decimalFormat.format(afterAmount);
-            }
-            toAmount.setText(toAmountString);
-
-            final Spinner fromCurrencyName = (Spinner) view.findViewById(R.id.fromSpinner);
-            DatabaseHelper dbHelper = new DatabaseHelper(this);
-
-            Cursor cursor = dbHelper.getCurrencyNameEng();
-            cursor.moveToPosition(0);
-            int spinnerPos1 = 0;
-            boolean foundSpinnerpos = false;
-            while (!foundSpinnerpos) {
-                if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)) == preferences.getInt("country", 1)) {
-                    spinnerPos1 = cursor.getPosition();
-                    foundSpinnerpos = true;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean("currency_on", true)) {
+            if (amount != 0) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                View view = getLayoutInflater().inflate(R.layout.currency_dialog_layout, null, false);
+                final AlertDialog dialog = builder.create();
+                final Utils utils = new Utils();
+                final int toCurrency = preferences.getInt("country", 1);
+                final ImageView fromFlag = (ImageView) view.findViewById(R.id.fromFlag);
+                fromFlag.setImageResource(utils.flagIds()[preferences.getInt("country", 1) - 1]);
+                ImageView toFlag = (ImageView) view.findViewById(R.id.toFlag);
+                toFlag.setImageResource(utils.flagIds()[preferences.getInt("country", 1) - 1]);
+                final double afterAmount = amount;
+                TextView fromAmount = (TextView) view.findViewById(R.id.fromAmount);
+                String fromAmountString;
+                if (amount > 1000000) {
+                    DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                    fromAmountString = decimalFormat.format(amount / 1000000) + " " + getString(R.string.mn);
+                } else if (amount > 1000) {
+                    DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                    fromAmountString = decimalFormat.format(amount / 1000) + " " + getString(R.string.k);
                 } else {
-                    cursor.moveToNext();
+                    DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                    fromAmountString = decimalFormat.format(amount);
                 }
+                fromAmount.setText(fromAmountString);
+                final TextView toAmount = (TextView) view.findViewById(R.id.toAmount);
+                String toAmountString;
+                if (afterAmount > 1000000) {
+                    toAmountString = (afterAmount / 1000000) + " " + getString(R.string.mn);
+                } else if (afterAmount > 1000) {
+                    toAmountString = afterAmount / 1000 + " " + getString(R.string.k);
+                } else {
+                    DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                    toAmountString = decimalFormat.format(afterAmount);
+                }
+                toAmount.setText(toAmountString);
+
+                final Spinner fromCurrencyName = (Spinner) view.findViewById(R.id.fromSpinner);
+                DatabaseHelper dbHelper = new DatabaseHelper(this);
+
+                Cursor cursor = dbHelper.getCurrencyNameEng();
+                cursor.moveToPosition(0);
+                int spinnerPos1 = 0;
+                boolean foundSpinnerpos = false;
+                while (!foundSpinnerpos) {
+                    if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_ID)) == preferences.getInt("country", 1)) {
+                        spinnerPos1 = cursor.getPosition();
+                        foundSpinnerpos = true;
+                    } else {
+                        cursor.moveToNext();
+                    }
+                }
+                DialogSpinnerAdapter spinnerAdapter = new DialogSpinnerAdapter(this, cursor);
+                fromCurrencyName.setAdapter(spinnerAdapter);
+                fromCurrencyName.setSelection(spinnerPos1);
+
+                TextView toCurrencyName = (TextView) view.findViewById(R.id.toCurrencyName);
+                toCurrencyName.setText(getResources().getStringArray(R.array.currencyName)[preferences.getInt("country", 1) - 1]);
+
+                final TextView fromCurrencyAbv = (TextView) view.findViewById(R.id.fromCurrencyAbv);
+                fromCurrencyAbv.setText(getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1]);
+
+                TextView toCurrencyAbv = (TextView) view.findViewById(R.id.toCurrencyABV);
+                toCurrencyAbv.setText(getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1]);
+
+                fromCurrencyName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromCurrencyAbv);
+                        fromCurrencyAbv.setText(getResources().getStringArray(R.array.currency_abv)[(int) (id - 1)]);
+                        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromCurrencyAbv);
+                        YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromFlag);
+                        fromFlag.setImageResource(utils.flagIds()[(int) (id - 1)]);
+                        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromFlag);
+                        double afterAmount = convertedAmount(amount, id);
+                        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                        afterAmount = Double.parseDouble(decimalFormat.format(afterAmount));
+                        String toAmountString;
+                        if (afterAmount > 1000000) {
+                            afterAmount = afterAmount / 1000000;
+                            afterAmount = Double.parseDouble(decimalFormat.format(afterAmount));
+                            toAmountString = afterAmount + " " + getString(R.string.mn);
+                        } else if (afterAmount > 1000) {
+                            afterAmount = afterAmount / 1000;
+                            afterAmount = Double.parseDouble(decimalFormat.format(afterAmount));
+                            toAmountString = afterAmount + " " + getString(R.string.k);
+                        } else {
+                            toAmountString = decimalFormat.format(afterAmount);
+                        }
+                        YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(toAmount);
+                        toAmount.setText(toAmountString);
+                        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(toAmount);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+                ImageButton dismissButton = (ImageButton) view.findViewById(R.id.dismiss);
+                dismissButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+                ImageButton doneButton = (ImageButton) view.findViewById(R.id.done);
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+                        setAmount(Double.parseDouble(decimalFormat.format(convertedAmount(amount, fromCurrencyName.getSelectedItemId()))));
+                        TextView amountText = (TextView) findViewById(R.id.amount_text);
+                        String amountString;
+                        if (amount > 1000000) {
+
+                            amountString = decimalFormat.format(amount / 1000000) + " " + getString(R.string.mn);
+                        } else if (amount > 1000) {
+
+                            amountString = decimalFormat.format(amount / 1000) + " " + getString(R.string.k);
+                        } else {
+
+                            amountString = decimalFormat.format(amount);
+                        }
+                        amountText.setText(amountString);
+
+                        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(amountText);
+                    }
+                });
+                dialog.setView(view);
+                dialog.show();
+                final float scale = getResources().getDisplayMetrics().density;
+                int px = (int) (400 * scale + 0.5f);
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, px);
+            } else {
+                Toast.makeText(this, R.string.amount_needs_to_more_than_zero, Toast.LENGTH_LONG).show();
             }
-            DialogSpinnerAdapter spinnerAdapter = new DialogSpinnerAdapter(this, cursor);
-            fromCurrencyName.setAdapter(spinnerAdapter);
-            fromCurrencyName.setSelection(spinnerPos1);
-
-            TextView toCurrencyName = (TextView) view.findViewById(R.id.toCurrencyName);
-            toCurrencyName.setText(getResources().getStringArray(R.array.currencyName)[preferences.getInt("country", 1) - 1]);
-
-            final TextView fromCurrencyAbv = (TextView) view.findViewById(R.id.fromCurrencyAbv);
-            fromCurrencyAbv.setText(getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1]);
-
-            TextView toCurrencyAbv = (TextView) view.findViewById(R.id.toCurrencyABV);
-            toCurrencyAbv.setText(getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1]);
-
-            fromCurrencyName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromCurrencyAbv);
-                    fromCurrencyAbv.setText(getResources().getStringArray(R.array.currency_abv)[(int) (id - 1)]);
-                    YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromCurrencyAbv);
-                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromFlag);
-                    fromFlag.setImageResource(utils.flagIds()[(int) (id - 1)]);
-                    YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(fromFlag);
-                    double afterAmount = convertedAmount(amount, id);
-                    DecimalFormat decimalFormat = new DecimalFormat("#.#");
-                    afterAmount = Double.parseDouble(decimalFormat.format(afterAmount));
-                    String toAmountString;
-                    if (afterAmount > 1000000) {
-                        afterAmount = afterAmount / 1000000;
-                        afterAmount = Double.parseDouble(decimalFormat.format(afterAmount));
-                        toAmountString = afterAmount + " " + getString(R.string.mn);
-                    } else if (afterAmount > 1000) {
-                        afterAmount = afterAmount / 1000;
-                        afterAmount = Double.parseDouble(decimalFormat.format(afterAmount));
-                        toAmountString = afterAmount + " " + getString(R.string.k);
-                    } else {
-                        toAmountString = decimalFormat.format(afterAmount);
-                    }
-                    YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(toAmount);
-                    toAmount.setText(toAmountString);
-                    YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(toAmount);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
-            ImageButton dismissButton = (ImageButton) view.findViewById(R.id.dismiss);
-            dismissButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                }
-            });
-            ImageButton doneButton = (ImageButton) view.findViewById(R.id.done);
-            doneButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                    DecimalFormat decimalFormat = new DecimalFormat("#.#");
-                    setAmount(Double.parseDouble(decimalFormat.format(convertedAmount(amount, fromCurrencyName.getSelectedItemId()))));
-                    TextView amountText = (TextView) findViewById(R.id.amount_text);
-                    String amountString;
-                    if (amount > 1000000) {
-
-                        amountString = decimalFormat.format(amount / 1000000) + " " + getString(R.string.mn);
-                    } else if (amount > 1000) {
-
-                        amountString = decimalFormat.format(amount / 1000) + " " + getString(R.string.k);
-                    } else {
-
-                        amountString = decimalFormat.format(amount);
-                    }
-                    amountText.setText(amountString);
-
-                    YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(amountText);
-                }
-            });
-            dialog.setView(view);
-            dialog.show();
-            final float scale = getResources().getDisplayMetrics().density;
-            int px = (int) (400 * scale + 0.5f);
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, px);
         } else {
-            Toast.makeText(this, R.string.amount_needs_to_more_than_zero, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.currency_conversion_disabled,Toast.LENGTH_LONG).show();
         }
     }
 
@@ -589,6 +628,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         ImageView icon = (ImageView) findViewById(R.id.methodIcon);
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         Cursor cursor = dbHelper.getMethodTable();
+        Log.i("updateMethodIcon: ", String.valueOf(pos));
         cursor.moveToPosition(pos);
         Utils utils = new Utils();
         if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT)) != -1) {

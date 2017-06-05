@@ -192,7 +192,8 @@ public class MainDebtActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
+            Intent i = new Intent(this, MainActivity.class);
+            startActivity(i);
         }
         if (item.getItemId() == R.id.restoreRelationships) {
             if (dbHelper.getDeletedDebtRelationships().getCount() != 0) {

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="50dp"
     android:orientation="horizontal"
     tools:ignore="UseCompoundDrawables">
 
@@ -13,7 +13,7 @@
 
     <ImageView
         android:id="@+id/catIcon"
-        android:layout_width="80dp"
+        android:layout_width="50dp"
         android:layout_height="match_parent"
         android:padding="4dp"
         app:srcCompat="@color/transparent"
@@ -23,7 +23,6 @@
         android:id="@+id/catName"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toStartOf="@+id/indicator"
         android:gravity="center_vertical|start"
         android:paddingEnd="4dp"
         android:paddingStart="4dp"

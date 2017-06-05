@@ -24,7 +24,8 @@
         <activity
             android:name=".activity.SplashScreen"
             android:exported="true"
-            android:screenOrientation="sensorPortrait">
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,11 +52,13 @@
         <activity
             android:name=".activity.ChooseCountryActivity"
             android:exported="true"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_choose_country"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.AddTransactionActivity"
             android:exported="true"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_add_transaction"
             android:theme="@style/AppTheme">
             <meta-data
@@ -65,16 +68,19 @@
         <activity
             android:name=".activity.Calculator"
             android:exported="true"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_calculator"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".Category"
             android:exported="true"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_category"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.DetailTransaction"
             android:exported="true"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_detail_transaction"
             android:theme="@style/AppTheme" />
         <activity
@@ -86,20 +92,24 @@
             android:name=".activity.DetailDebtActivity"
             android:exported="true"
             android:label="@string/title_activity_detail_debt"
+            android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.AddDebtTransaction"
             android:exported="true"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_add_debt_transaction"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.RestoreRelationships"
             android:exported="true"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_restore_relationships"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".EditPaymentMethods"
             android:label="@string/title_activity_edit_payment_methods"
+            android:screenOrientation="sensorPortrait"
             android:exported="true"
             android:theme="@style/AppTheme"/>
     </application>

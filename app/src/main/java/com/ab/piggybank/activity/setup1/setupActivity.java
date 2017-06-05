@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -343,14 +344,19 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                 } else {
                     view = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_text_and_pic, parent, false);
                     final ImageView icon = (ImageView) view.findViewById(R.id.item_icon);
-
-                    icon.post(new Runnable() {
+                    new AsyncTask<Integer, Void, Bitmap>() {
                         @Override
-                        public void run() {
-                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), methodTypes.get(position).getPicId());
-                            icon.setImageBitmap(Bitmap.createScaledBitmap(bitmap,120,120,false));
+                        protected Bitmap doInBackground(Integer... params) {
+                            return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), params[0]),120,120,false);
                         }
-                    });
+
+                        @Override
+                        protected void onPostExecute(Bitmap bitmap) {
+                            super.onPostExecute(bitmap);
+                            icon.setImageBitmap(bitmap);
+                            YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(icon);
+                        }
+                    }.execute(methodTypes.get(position).getPicId());
                     TextView name = (TextView) view.findViewById(R.id.item_text);
                     name.setText(methodTypes.get(position).getName());
                 }

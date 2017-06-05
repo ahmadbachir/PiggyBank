@@ -6,11 +6,32 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:textAppearanceSmall">@style/textAppearanceSmall</item>
+        <item name="android:textAppearanceMedium">@style/textAppearanceMed</item>
+        <item name="android:textAppearanceLarge">@style/textAppearanceLarge</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="textAppearanceSmall" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="textAppearanceMed" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="textAppearanceLarge" parent="TextAppearance.AppCompat.Large">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+    
+    
+    <style name="SplashScreen" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen_bk</item>
     </style>
 
     <style name="MyToolbarStyle" parent="ThemeOverlay.AppCompat.ActionBar">
-        <item name="colorControlNormal">@android:color/tertiary_text_light</item>
-        <item name="android:textColorPrimary">@android:color/tertiary_text_light</item>
+        <item name="colorControlNormal">@android:color/black</item>
+        <item name="android:textColorPrimary">@android:color/black</item>
     </style>
 
 

@@ -161,6 +161,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public long getPaymentMethodOfTransactionAtId(long id){
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLENAME_1,null, COLUMN_ID + " = " + id,null,null,null,null);
+        cursor.moveToPosition(0);
+        long returnedId = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_PAYMENT_METHOD_ID));
+        cursor.close();
+        return returnedId;
+    }
+
+
     public Cursor getCurrencyRate() {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(false, TABLENAME_2, null, null, null, null, null, null, null);
@@ -443,7 +453,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteDebtTransaction(long id) {
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
         db.delete(TABLENAME_6, COLUMN_ID + " = " + id, null);
     }
 
@@ -494,8 +503,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public int getPaymentMethodPostitionInTable(long id){
         SQLiteDatabase db = getReadableDatabase();
-        String query = "SELECT COUNT (*) FROM " + TABLENAME_3 + " WHERE " + COLUMN_ID + " > " + id;
-        return (int) db.compileStatement(query).simpleQueryForLong();
+        String query = "SELECT COUNT (*) FROM " + TABLENAME_3 + " WHERE " + COLUMN_ID + " < " + id;
+        Cursor cursor = db.rawQuery(query,null);
+        cursor.moveToFirst();
+        int returnedValue = cursor.getInt(0);
+        cursor.close();
+        return returnedValue;
     }
 
     public Cursor returnedARowWithTheSameName(String name) {
