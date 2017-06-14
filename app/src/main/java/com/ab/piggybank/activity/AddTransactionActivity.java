@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -53,10 +54,14 @@ import com.google.android.gms.ads.AdView;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import me.toptas.fancyshowcase.FancyShowCaseQueue;
+import me.toptas.fancyshowcase.FancyShowCaseView;
+import me.toptas.fancyshowcase.FocusShape;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -198,6 +203,7 @@ public class AddTransactionActivity extends AppCompatActivity {
             }
         });
 
+
     }
 
     private Boolean isExpense() {
@@ -276,16 +282,29 @@ public class AddTransactionActivity extends AppCompatActivity {
             adView.resume();
         }
 
-        ImageView imageView = (ImageView) findViewById(R.id.flagImage);
+        final ImageView imageView = (ImageView) findViewById(R.id.flagImage);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showCurrencyDialog();
             }
         });
-        Utils utils = new Utils();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        imageView.setImageResource(utils.flagIds()[preferences.getInt("country", 0) - 1]);
+        final Utils utils = new Utils();
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+                return BitmapFactory.decodeResource(getResources(),utils.flagIds()[preferences.getInt("country", 0) - 1]);
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                super.onPostExecute(bitmap);
+                imageView.setImageBitmap(bitmap);
+                YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(imageView);
+            }
+        }.execute();
+//        imageView.setImageResource(utils.flagIds()[preferences.getInt("country", 0) - 1]);
         TextView currencyTextView = (TextView) findViewById(R.id.currency_text);
         currencyTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -335,8 +354,15 @@ public class AddTransactionActivity extends AppCompatActivity {
 
         }
         updateMethodSpinnerStatus();
-
-
+        new FancyShowCaseQueue()
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_transaction_1").titleStyle(R.style.textAppearanceShowcase, Gravity.CENTER_VERTICAL | Gravity.START).backgroundColor(getResources().getColor(android.R.color.white)).title(getString(R.string.add_transaction_1)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_transaction_2").focusCircleRadiusFactor(0.2).focusOn(findViewById(R.id.cardView)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_2)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_transaction_3").focusOn(findViewById(R.id.cardView)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_3)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_transaction_4").focusOn(findViewById(R.id.cardView2)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_4)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_transaction_5").focusOn(findViewById(R.id.cardView3)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_5)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_transaction_6").focusOn(findViewById(R.id.cardView4)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_6)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_transaction_7").titleStyle(R.style.textAppearanceShowcase, Gravity.CENTER).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_7)).build())
+                .show();
     }
 
 
@@ -387,7 +413,6 @@ public class AddTransactionActivity extends AppCompatActivity {
                 View view = getLayoutInflater().inflate(R.layout.currency_dialog_layout, null, false);
                 final AlertDialog dialog = builder.create();
                 final Utils utils = new Utils();
-                final int toCurrency = preferences.getInt("country", 1);
                 final ImageView fromFlag = (ImageView) view.findViewById(R.id.fromFlag);
                 fromFlag.setImageResource(utils.flagIds()[preferences.getInt("country", 1) - 1]);
                 ImageView toFlag = (ImageView) view.findViewById(R.id.toFlag);
@@ -413,7 +438,7 @@ public class AddTransactionActivity extends AppCompatActivity {
                 } else if (afterAmount > 1000) {
                     toAmountString = afterAmount / 1000 + " " + getString(R.string.k);
                 } else {
-                    DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                    DecimalFormat decimalFormat = new DecimalFormat("#.#");
                     toAmountString = decimalFormat.format(afterAmount);
                 }
                 toAmount.setText(toAmountString);
@@ -520,7 +545,7 @@ public class AddTransactionActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.amount_needs_to_more_than_zero, Toast.LENGTH_LONG).show();
             }
         } else {
-            Toast.makeText(this, R.string.currency_conversion_disabled,Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.currency_conversion_disabled, Toast.LENGTH_LONG).show();
         }
     }
 

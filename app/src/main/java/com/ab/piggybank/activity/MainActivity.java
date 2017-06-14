@@ -1,5 +1,6 @@
 package com.ab.piggybank.activity;
 
+import android.animation.AnimatorInflater;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,18 +21,24 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ab.piggybank.DatabaseHelper;
@@ -65,6 +72,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import me.toptas.fancyshowcase.DismissListener;
+import me.toptas.fancyshowcase.FancyShowCaseQueue;
+import me.toptas.fancyshowcase.FancyShowCaseView;
+import me.toptas.fancyshowcase.FocusShape;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -85,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -118,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), AddTransactionActivity.class);
                 startActivity(i);
-                finish();
+//                finish();
             }
         });
         com.github.clans.fab.FloatingActionButton floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab2);
@@ -127,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainDebtActivity.class);
                 startActivity(i);
-                finish();
+//                finish();
             }
         });
 
@@ -137,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setOffscreenPageLimit(1);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
         tabLayout.setupWithViewPager(viewPager);
+
+
     }
 
     @Override
@@ -219,6 +233,77 @@ public class MainActivity extends AppCompatActivity {
             adView.destroy();
         }
     }
+
+    private static class PaymentMethodAdapter extends CursorAdapter {
+        public PaymentMethodAdapter(Context context, Cursor c) {
+            super(context, c);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            LayoutInflater layoutInflater = LayoutInflater.from(context);
+            View view = layoutInflater.inflate(R.layout.payment_method_item, parent);
+            ViewHolder viewHolder = new ViewHolder();
+            viewHolder.icon = (ImageView) view.findViewById(R.id.MethodIcon);
+            viewHolder.name = (TextView) view.findViewById(R.id.MethodName);
+            viewHolder.amount = (TextView) view.findViewById(R.id.amountText);
+            viewHolder.currencyName = (TextView) view.findViewById(R.id.currencyText);
+            view.setTag(viewHolder);
+            return view;
+        }
+
+        @Override
+        public void bindView(View view, final Context context, final Cursor cursor) {
+            final ViewHolder viewHolder = (ViewHolder) view.getTag();
+            final Utils utils = new Utils();
+            new AsyncTask<Void, Void, Bitmap>() {
+                @Override
+                protected Bitmap doInBackground(Void... params) {
+                    if (cursor.getInt(2) != -1){
+                        return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), utils.paymentMethodIcons()[cursor.getInt(2)]), 100, 100, false);
+                    }else {
+                        return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(),R.drawable.cash),100,100,false);
+                    }
+                }
+
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    super.onPostExecute(bitmap);
+                    viewHolder.icon.setImageBitmap(bitmap);
+                    YoYo.with(Techniques.FadeIn).duration(context.getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(viewHolder.icon);
+                }
+            }.execute();
+            if (cursor.getInt(2) != -1){
+                viewHolder.name.setText(context.getString(R.string.cash));
+            }else {
+                viewHolder.name.setText(cursor.getString(1));
+            }
+            double amount = cursor.getDouble(4);
+            String amountString;
+            if (amount > 1000000) {
+                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                amountString = decimalFormat.format(amount / 1000000) + " " + context.getString(R.string.mn);
+            } else if (amount > 1000) {
+                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                amountString = decimalFormat.format(amount / 1000) + " " + context.getString(R.string.k);
+            } else {
+                DecimalFormat decimalFormat = new DecimalFormat("#.##");
+                amountString = decimalFormat.format(amount);
+            }
+            viewHolder.amount.setText(amountString);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            viewHolder.currencyName.setText(context.getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1]);
+        }
+
+        private class ViewHolder {
+            ImageView icon;
+            TextView name;
+            TextView amount;
+            TextView currencyName;
+        }
+
+    }
+
 
     private class ViewPagerAdapter extends FragmentStatePagerAdapter {
         ArrayList<Month> months;
@@ -322,6 +407,10 @@ public class MainActivity extends AppCompatActivity {
         public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
+            ListView listView = (ListView) view.findViewById(R.id.PaymentMethodList);
+            PaymentMethodAdapter paymentMethodAdapter = new PaymentMethodAdapter(getActivity(),dbHelper.getSumOfEachPaymentMethodInMonth(getArguments().getInt("month"), getArguments().getInt("year")));
+            listView.setAdapter(paymentMethodAdapter);
+            paymentMethodAdapter.getCursor().close();
             Cursor daysInMonthExpense = dbHelper.getDaysInMonth(getArguments().getInt("month"), getArguments().getInt("year"));
             if (daysInMonthExpense.getCount() != 0) {
                 BarChart lineChart = (BarChart) view.findViewById(R.id.expenseBarChart);
@@ -336,9 +425,9 @@ public class MainActivity extends AppCompatActivity {
                 dataSet.setHighlightEnabled(true);
                 BarData barData = new BarData(dataSet);
                 dataSet.setValueFormatter(new LargeValueFormatter());
-                lineChart.getLegend().setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
+                lineChart.getLegend().setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Regular.ttf"));
                 dataSet.setColor(getResources().getColor(R.color.colorAccent));
-                barData.setValueTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
+                barData.setValueTypeface(Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Regular.ttf"));
                 lineChart.setData(barData);
                 lineChart.setTouchEnabled(false);
                 XAxis xAxis = lineChart.getXAxis();
@@ -373,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
                 pieDataSet.setValueTextColor(getResources().getColor(android.R.color.white));
                 pieDataSet.setValueTextSize(12);
                 pieDataSet.setSliceSpace(1.5f);
-                pieChart.setEntryLabelTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
+                pieChart.setEntryLabelTypeface(Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Regular.ttf"));
                 PieData pieData = new PieData(pieDataSet);
                 pieChart.setData(pieData);
                 pieChart.setEntryLabelColor(getResources().getColor(android.R.color.white));
@@ -422,9 +511,9 @@ public class MainActivity extends AppCompatActivity {
                 dataSet.setValueFormatter(new LargeValueFormatter());
                 dataSet.setColor(getResources().getColor(R.color.colorAccent));
                 lineChart.setData(barData);
-                barData.setValueTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
+                barData.setValueTypeface(Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Regular.ttf"));
                 lineChart.setTouchEnabled(false);
-                lineChart.getLegend().setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
+                lineChart.getLegend().setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Regular.ttf"));
                 XAxis xAxis = lineChart.getXAxis();
                 xAxis.setGridColor(Color.TRANSPARENT);
                 xAxis.setGranularity(1f);
@@ -463,7 +552,7 @@ public class MainActivity extends AppCompatActivity {
                 pieDataSet.setSliceSpace(1.5f);
                 PieData pieData = new PieData(pieDataSet);
                 pieChart.setData(pieData);
-                pieChart.setEntryLabelTypeface(Typeface.createFromAsset(getActivity().getAssets(),"SourceSansPro-Regular.ttf"));
+                pieChart.setEntryLabelTypeface(Typeface.createFromAsset(getActivity().getAssets(), "SourceSansPro-Regular.ttf"));
                 pieChart.setEntryLabelColor(getResources().getColor(android.R.color.white));
                 pieChart.setEntryLabelTextSize(12);
                 pieChart.setUsePercentValues(true);

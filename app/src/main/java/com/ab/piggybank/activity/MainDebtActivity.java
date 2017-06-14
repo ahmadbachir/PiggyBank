@@ -19,6 +19,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,16 +47,22 @@ import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.text.DecimalFormat;
 
+import me.toptas.fancyshowcase.DismissListener;
+import me.toptas.fancyshowcase.FancyShowCaseQueue;
+import me.toptas.fancyshowcase.FancyShowCaseView;
+import me.toptas.fancyshowcase.FocusShape;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainDebtActivity extends AppCompatActivity {
     boolean isActionMenuExpanded = false;
     DatabaseHelper dbHelper;
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +76,7 @@ public class MainDebtActivity extends AppCompatActivity {
         );
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle,true);
+        getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle, true);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
@@ -115,72 +122,77 @@ public class MainDebtActivity extends AppCompatActivity {
                     floatingActionMenu.toggle(true);
                     imageView.setClickable(false);
                 }
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MainDebtActivity.this);
-                builder.setTitle(R.string.add_debt_relationship);
-                View view1 = LayoutInflater.from(getApplicationContext()).inflate(R.layout.debt_relationship_editor_layout, null, false);
-                final pic pic = new pic();
-                pic.id = 0;
-                final EditText nameEnter = (EditText) view1.findViewById(R.id.debt_name);
-                nameEnter.getBackground().mutate().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
-                final RoundedImageView roundedImageView = (RoundedImageView) view1.findViewById(R.id.relationship_icon);
-                final Utils utils = new Utils();
-                roundedImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[pic.id]), 120, 120, false));
-                roundedImageView.setOnClickListener(new View.OnClickListener() {
+                showAddRelationshipDialog();
+
+
+            }
+        });
+    }
+
+    private void showAddRelationshipDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainDebtActivity.this);
+        builder.setTitle(R.string.add_debt_relationship);
+        View view1 = LayoutInflater.from(getApplicationContext()).inflate(R.layout.debt_relationship_editor_layout, null, false);
+        final pic pic = new pic();
+        pic.id = 0;
+        final EditText nameEnter = (EditText) view1.findViewById(R.id.debt_name);
+        nameEnter.getBackground().mutate().setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+        final RoundedImageView roundedImageView = (RoundedImageView) view1.findViewById(R.id.relationship_icon);
+        final Utils utils = new Utils();
+        roundedImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[pic.id]), 120, 120, false));
+        roundedImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder builder1 = new AlertDialog.Builder(MainDebtActivity.this);
+                View view2 = LayoutInflater.from(getApplicationContext()).inflate(R.layout.grid_layout, null, false);
+                GridView gridView = (GridView) view2.findViewById(R.id.gridView);
+                GridViewAdapter gridViewAdapter = new GridViewAdapter();
+                gridView.setAdapter(gridViewAdapter);
+                final AlertDialog dialog = builder1.create();
+                dialog.setView(view2);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        final AlertDialog.Builder builder1 = new AlertDialog.Builder(MainDebtActivity.this);
-                        View view2 = LayoutInflater.from(getApplicationContext()).inflate(R.layout.grid_layout, null, false);
-                        GridView gridView = (GridView) view2.findViewById(R.id.gridView);
-                        GridViewAdapter gridViewAdapter = new GridViewAdapter();
-                        gridView.setAdapter(gridViewAdapter);
-                        final AlertDialog dialog = builder1.create();
-                        dialog.setView(view2);
-                        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                dialog.dismiss();
-                                pic.id = position;
-                                YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(roundedImageView);
-                                roundedImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[position]), 120, 120, false));
-                                YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(roundedImageView);
-                            }
-                        });
-                        dialog.show();
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        dialog.dismiss();
+                        pic.id = position;
+                        YoYo.with(Techniques.FadeOut).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(roundedImageView);
+                        roundedImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.debt_relations_icon()[position]), 120, 120, false));
+                        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(roundedImageView);
                     }
                 });
-                builder.setView(view1);
-                builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                dialog.show();
+            }
+        });
+        builder.setView(view1);
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(getString(R.string.done), null);
+        final AlertDialog dialog1 = builder.create();
+        dialog1.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                Button okButton = dialog1.getButton(AlertDialog.BUTTON_POSITIVE);
+                okButton.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(View v) {
+                        if (nameEnter.getText().toString().length() == 0) {
+                            Toast.makeText(getApplicationContext(), R.string.add_name_to_proceed, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        dbHelper.insertDebtRelationship(pic.id, nameEnter.getText().toString());
+                        Intent intent = getIntent();
+                        finish();
+                        startActivity(intent);
                         dialog.dismiss();
                     }
                 });
-                builder.setPositiveButton(getString(R.string.done), null);
-                final AlertDialog dialog1 = builder.create();
-                dialog1.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(final DialogInterface dialog) {
-                        Button okButton = dialog1.getButton(AlertDialog.BUTTON_POSITIVE);
-                        okButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (nameEnter.getText().toString().length() == 0) {
-                                    Toast.makeText(getApplicationContext(), R.string.add_name_to_proceed, Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                dbHelper.insertDebtRelationship(pic.id, nameEnter.getText().toString());
-                                Intent intent = getIntent();
-                                finish();
-                                startActivity(intent);
-                                dialog.dismiss();
-                            }
-                        });
-                    }
-                });
-                dialog1.show();
             }
         });
-
+        dialog1.show();
     }
 
     @Override
@@ -199,8 +211,8 @@ public class MainDebtActivity extends AppCompatActivity {
             if (dbHelper.getDeletedDebtRelationships().getCount() != 0) {
                 Intent i = new Intent(this, RestoreRelationships.class);
                 startActivity(i);
-            }else {
-                Toast.makeText(this, R.string.no_deleted_debt_relationships,Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, R.string.no_deleted_debt_relationships, Toast.LENGTH_LONG).show();
             }
         }
 
@@ -253,7 +265,7 @@ public class MainDebtActivity extends AppCompatActivity {
         DatabaseHelper dbHelper;
 
         public CursorAdapter(Context context, Cursor c) {
-            super(context, c,true);
+            super(context, c, true);
             dbHelper = new DatabaseHelper(context);
         }
 
@@ -376,8 +388,8 @@ public class MainDebtActivity extends AppCompatActivity {
                                                         return;
                                                     }
                                                     Cursor cursor1 = dbHelper.returnedARowWithTheSameName(nameEnter.getText().toString());
-                                                    if(cursor1.moveToFirst() && cursor1.getLong(cursor1.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)) != cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))){
-                                                       Toast.makeText(context, R.string.theres_debt_relationship_with_same_name, Toast.LENGTH_LONG).show();
+                                                    if (cursor1.moveToFirst() && cursor1.getLong(cursor1.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)) != cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))) {
+                                                        Toast.makeText(context, R.string.theres_debt_relationship_with_same_name, Toast.LENGTH_LONG).show();
                                                         cursor1.close();
                                                         return;
                                                     }

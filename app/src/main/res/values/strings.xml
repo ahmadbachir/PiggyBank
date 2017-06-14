@@ -553,6 +553,18 @@
     <string name="add_transaction_banner_ad">ca-app-pub-9146413012265377/7040214644</string>
     <string name="detail_transaction_banner_ad">ca-app-pub-9146413012265377/4520080246</string>
     <string name="currency_conversion_disabled">Currnecy conversion is disabled for this session, please connect to the internet and restart PiggyBank to enable it.</string>
+    <string name="main_tutorial_1_text_1">Welcome to PiggyBank.   Let me show you around.</string>
+    <string name="main_tutorial_1_text_2">This is where you will see your transactions.</string>
+    <string name="main_tutorial_1_text_3">Tap the screen to go to add your first transaction.</string>
+    <string name="add_transaction_1">This is the page where you add your transactions. Tap the screen to proceed.</string>
+    <string name="add_transaction_7">Now get spending!</string>
+    <string name="add_transaction_6">If your transaction is an expense, the payment method dropdown menu will be unlocked.</string>
+    <string name="add_transaction_5">To add the category of your transaction, tap the category text.</string>
+    <string name="add_transaction_4">To change the date of the transaction, tap the date text.</string>
+    <string name="add_transaction_3">To convert the currency of your transaction, you can tap the flag or you can tap the currency abbreviation.</string>
+    <string name="add_transaction_2">To add the amount, tap the amount number.</string>
+    <string name="add_debt_transaction_1">This is the page where you add your debt transactions. Tap the screen to proceed.</string>
+    <string name="add_debt_transaction_5">When it comes to debt, you won\'t be using categories. Instead you will be describing the debt transaction ex.(New Glasses, restaurant tab).</string>
 
 
 </resources>

@@ -497,8 +497,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getDebtTransactionAtID(long id) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLENAME_6, null, COLUMN_ID + " = " + id, null, null, null, null);
-        return cursor;
+        return db.query(TABLENAME_6, null, COLUMN_ID + " = " + id, null, null, null, null);
     }
 
     public int getPaymentMethodPostitionInTable(long id){
@@ -513,8 +512,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor returnedARowWithTheSameName(String name) {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLENAME_5, new String[]{COLUMN_ID,COLUMN_RELATIONSHIP_NAME}, COLUMN_RELATIONSHIP_NAME + " = '" + name+"'", null, null, null, null);
-        return cursor;
+        return db.query(TABLENAME_5, new String[]{COLUMN_ID,COLUMN_RELATIONSHIP_NAME}, COLUMN_RELATIONSHIP_NAME + " = '" + name+"'", null, null, null, null);
+
+    }
+
+    public Cursor getSumOfEachPaymentMethodInMonth(int month, int year){
+        SQLiteDatabase db = getWritableDatabase();
+        return db.rawQuery("SELECT *, (SELECT SUM(TRANSACTIONS.AMOUNT) FROM TRANSACTIONS WHERE TRANSACTIONS.PAYMENTMETHOD = PAYMENTMETHODS._id AND TRANSACTIONS.MONTH = " + month +  " AND TRANSACTIONS.YEAR = " + year + " ) FROM PAYMENTMETHODS",null);
     }
 
 }
