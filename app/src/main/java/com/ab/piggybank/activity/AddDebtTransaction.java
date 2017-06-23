@@ -42,6 +42,8 @@ import com.ab.piggybank.Utils;
 import com.ab.piggybank.activity.Calculator;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -63,6 +65,7 @@ public class AddDebtTransaction extends AppCompatActivity {
     double amount;
     long id = 0;
     int spinnerPos = 0;
+    AdView adView;
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
@@ -78,6 +81,9 @@ public class AddDebtTransaction extends AppCompatActivity {
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
+        adView = (AdView) findViewById(R.id.Add_debt_transaction_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_close);
@@ -451,13 +457,31 @@ public class AddDebtTransaction extends AppCompatActivity {
                 .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_3").focusOn(findViewById(R.id.cardView)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_3)).build())
                 .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_4").focusOn(findViewById(R.id.cardView2)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_transaction_4)).build())
                 .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_5").focusOn(findViewById(R.id.cardView3)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_debt_transaction_5)).build())
-                .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_6").focusOn(findViewById(R.id.cardView4)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title("Another thing about debt is that you will have to choose who your debt transaction was with. Here is the dropdown menu of your debt relationships.").build())
-                .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_7").focusOn(findViewById(R.id.cardView5)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.CENTER_VERTICAL).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title("Here is where you choose the type of debt, is it ingoing (meaning that the person owes you money) or outgoing (meaning that you owe the person money)?").build())
-                .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_8").titleStyle(R.style.textAppearanceShowcase, Gravity.CENTER).backgroundColor(getResources().getColor(android.R.color.white)).title("We hope you enjoy using PiggyBank!").build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_6").focusOn(findViewById(R.id.cardView4)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.BOTTOM).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_debt_transaction_6)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_7").focusOn(findViewById(R.id.cardView5)).focusShape(FocusShape.ROUNDED_RECTANGLE).titleStyle(R.style.textAppearanceShowcase, Gravity.START | Gravity.CENTER_VERTICAL).backgroundColor(getResources().getColor(R.color.colorPrimaryDarkTranslucent)).title(getString(R.string.add_debt_transaction_7)).build())
+                .add(new FancyShowCaseView.Builder(this).showOnce("add_debt_transaction_8").titleStyle(R.style.textAppearanceShowcase, Gravity.CENTER).backgroundColor(getResources().getColor(android.R.color.white)).title(getString(R.string.we_hope_you_enjoy_using_piggybank)).build())
                 .show();
+        if (adView != null) {
+            adView.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (adView != null) {
+            adView.pause();
+        }
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (adView != null) {
+            adView.destroy();
+        }
+    }
 
     private void updateMethodIcon(int pos) {
         ImageView icon = (ImageView) findViewById(R.id.whoIcon);

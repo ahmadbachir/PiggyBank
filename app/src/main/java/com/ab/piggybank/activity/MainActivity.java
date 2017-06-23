@@ -8,8 +8,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -20,10 +22,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,6 +44,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -79,6 +88,7 @@ import me.toptas.fancyshowcase.FocusShape;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
+import static android.support.v7.recyclerview.R.attr.layoutManager;
 import static android.view.View.GONE;
 
 public class MainActivity extends AppCompatActivity {
@@ -130,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), AddTransactionActivity.class);
                 startActivity(i);
-//                finish();
+                finish();
             }
         });
         com.github.clans.fab.FloatingActionButton floatingActionButton2 = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab2);
@@ -139,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainDebtActivity.class);
                 startActivity(i);
-//                finish();
+                finish();
             }
         });
 
@@ -234,49 +244,55 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static class PaymentMethodAdapter extends CursorAdapter {
+    private static class PaymentMethodAdapter extends RecyclerView.Adapter<PaymentMethodAdapter.ViewHolder> {
+        Context context;
+        Cursor cursor;
+
         public PaymentMethodAdapter(Context context, Cursor c) {
-            super(context, c);
+            this.context = context;
+            cursor = c;
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
-            View view = layoutInflater.inflate(R.layout.payment_method_item, parent);
-            ViewHolder viewHolder = new ViewHolder();
-            viewHolder.icon = (ImageView) view.findViewById(R.id.MethodIcon);
-            viewHolder.name = (TextView) view.findViewById(R.id.MethodName);
-            viewHolder.amount = (TextView) view.findViewById(R.id.amountText);
-            viewHolder.currencyName = (TextView) view.findViewById(R.id.currencyText);
-            view.setTag(viewHolder);
-            return view;
+            View view = layoutInflater.inflate(R.layout.payment_method_item, parent, false);
+            ViewHolder viewHolder = new ViewHolder(view);
+
+            return viewHolder;
         }
 
         @Override
-        public void bindView(View view, final Context context, final Cursor cursor) {
-            final ViewHolder viewHolder = (ViewHolder) view.getTag();
+        public void onBindViewHolder(final ViewHolder holder, int position) {
+            cursor.moveToPosition(position);
             final Utils utils = new Utils();
+            if(position > 0){
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) holder.mainView.getLayoutParams();
+                params.setMarginStart(20);
+                holder.mainView.setLayoutParams(params);
+            }
+            final int picId = cursor.getInt(2);
             new AsyncTask<Void, Void, Bitmap>() {
                 @Override
                 protected Bitmap doInBackground(Void... params) {
-                    if (cursor.getInt(2) != -1){
-                        return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), utils.paymentMethodIcons()[cursor.getInt(2)]), 100, 100, false);
-                    }else {
-                        return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(),R.drawable.cash),100,100,false);
+                    if (picId != -1) {
+                        return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), utils.paymentMethodIcons()[picId]), 100, 100, false);
+                    } else {
+                        return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.cash), 100, 100, false);
                     }
                 }
 
                 @Override
                 protected void onPostExecute(Bitmap bitmap) {
                     super.onPostExecute(bitmap);
-                    viewHolder.icon.setImageBitmap(bitmap);
-                    YoYo.with(Techniques.FadeIn).duration(context.getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(viewHolder.icon);
+                    holder.icon.setImageBitmap(bitmap);
+                    YoYo.with(Techniques.FadeIn).duration(context.getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(holder.icon);
                 }
             }.execute();
-            if (cursor.getInt(2) != -1){
-                viewHolder.name.setText(context.getString(R.string.cash));
-            }else {
-                viewHolder.name.setText(cursor.getString(1));
+            if (cursor.getInt(2) != -1) {
+                holder.name.setText(cursor.getString(1));
+            } else {
+                holder.name.setText(context.getString(R.string.cash));
             }
             double amount = cursor.getDouble(4);
             String amountString;
@@ -290,16 +306,35 @@ public class MainActivity extends AppCompatActivity {
                 DecimalFormat decimalFormat = new DecimalFormat("#.##");
                 amountString = decimalFormat.format(amount);
             }
-            viewHolder.amount.setText(amountString);
+            holder.amount.setText(amountString);
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            viewHolder.currencyName.setText(context.getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1]);
+            holder.currencyName.setText(context.getResources().getStringArray(R.array.currency_abv)[preferences.getInt("country", 1) - 1]);
+            if (cursor.isLast()) {
+                cursor.close();
+            }
         }
 
-        private class ViewHolder {
-            ImageView icon;
-            TextView name;
-            TextView amount;
-            TextView currencyName;
+
+        @Override
+        public int getItemCount() {
+            return cursor.getCount();
+        }
+
+        public static class ViewHolder extends RecyclerView.ViewHolder {
+            // each data item is just a string in this case
+            public ImageView icon;
+            public TextView currencyName;
+            public TextView name;
+            public TextView amount;
+            public View mainView;
+            public ViewHolder(View view) {
+                super(view);
+                mainView = view;
+                icon = (ImageView) view.findViewById(R.id.MethodIcon);
+                name = (TextView) view.findViewById(R.id.MethodName);
+                amount = (TextView) view.findViewById(R.id.amountText);
+                currencyName = (TextView) view.findViewById(R.id.currencyText);
+            }
         }
 
     }
@@ -403,14 +438,43 @@ public class MainActivity extends AppCompatActivity {
             return inflater.inflate(R.layout.month_fragment, container, false);
         }
 
+        private class MyDividerItemDecoration extends RecyclerView.ItemDecoration {
+            private Drawable divider;
+
+            public MyDividerItemDecoration(Context context) {
+                divider = ContextCompat.getDrawable(context,R.drawable.line_divider);
+            }
+
+            @Override
+            public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                int top = parent.getPaddingLeft();
+                int bottom = parent.getWidth() - parent.getPaddingRight();
+
+                int childCount = parent.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    View child = parent.getChildAt(i);
+
+                    RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                    int left = child.getBottom() + params.rightMargin;
+                    int right = left + divider.getIntrinsicHeight();
+
+                    divider.setBounds(10,top, right, bottom);
+                    divider.draw(c);
+                }
+            }
+        }
+
         @Override
         public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-            ListView listView = (ListView) view.findViewById(R.id.PaymentMethodList);
-            PaymentMethodAdapter paymentMethodAdapter = new PaymentMethodAdapter(getActivity(),dbHelper.getSumOfEachPaymentMethodInMonth(getArguments().getInt("month"), getArguments().getInt("year")));
+            RecyclerView listView = (RecyclerView) view.findViewById(R.id.PaymentMethodList);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+            listView.setLayoutManager(linearLayoutManager);
+            listView.addItemDecoration(new MyDividerItemDecoration(getActivity())/* new DividerItemDecoration(getActivity(),linearLayoutManager.getOrientation())*/);
+            PaymentMethodAdapter paymentMethodAdapter = new PaymentMethodAdapter(getActivity(), dbHelper.getSumOfEachPaymentMethodInMonth(getArguments().getInt("month"), getArguments().getInt("year")));
             listView.setAdapter(paymentMethodAdapter);
-            paymentMethodAdapter.getCursor().close();
             Cursor daysInMonthExpense = dbHelper.getDaysInMonth(getArguments().getInt("month"), getArguments().getInt("year"));
             if (daysInMonthExpense.getCount() != 0) {
                 BarChart lineChart = (BarChart) view.findViewById(R.id.expenseBarChart);

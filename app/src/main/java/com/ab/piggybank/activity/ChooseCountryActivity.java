@@ -78,6 +78,7 @@ public class ChooseCountryActivity extends AppCompatActivity {
                         preferences.edit().putInt("country", (int) id).apply();
                         Intent i = new Intent(ChooseCountryActivity.this, MainActivity.class);
                         startActivity(i);
+                        finish();
 
                     }
                 });

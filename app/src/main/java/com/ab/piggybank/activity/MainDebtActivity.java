@@ -43,6 +43,8 @@ import com.ab.piggybank.Utils;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.text.DecimalFormat;
@@ -57,7 +59,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class MainDebtActivity extends AppCompatActivity {
     boolean isActionMenuExpanded = false;
     DatabaseHelper dbHelper;
-
+AdView adView;
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
@@ -77,9 +79,13 @@ public class MainDebtActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().getThemedContext().getTheme().applyStyle(R.style.MyToolbarStyle, true);
+        adView = (AdView) findViewById(R.id.MainDebtActivityAd);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
         final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
         upArrow.setColorFilter(Color.parseColor("#424242"), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
+
         final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.debtFloatingMenu);
         floatingActionMenu.setOnMenuButtonClickListener(new View.OnClickListener() {
             @Override
@@ -128,6 +134,8 @@ public class MainDebtActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     private void showAddRelationshipDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainDebtActivity.this);
@@ -204,8 +212,7 @@ public class MainDebtActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            Intent i = new Intent(this, MainActivity.class);
-            startActivity(i);
+           back();
         }
         if (item.getItemId() == R.id.restoreRelationships) {
             if (dbHelper.getDeletedDebtRelationships().getCount() != 0) {
@@ -219,6 +226,18 @@ public class MainDebtActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        back();
+    }
+
+    private void back(){
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        finish();
+    }
+
     private class pic {
         int id;
     }
@@ -228,6 +247,27 @@ public class MainDebtActivity extends AppCompatActivity {
         super.onResume();
         ListView listView = (ListView) findViewById(R.id.debt_relationships);
         ((CursorAdapter) listView.getAdapter()).changeCursor(dbHelper.getDebtRelationships());
+        if (adView != null) {
+            adView.resume();
+        }
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (adView != null) {
+            adView.pause();
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (adView != null) {
+            adView.destroy();
+        }
     }
 
     public void onClickMenu() {

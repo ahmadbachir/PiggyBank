@@ -105,7 +105,6 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
             public void onClick(View v) {
                 Toast toast = Toast.makeText(setupActivity.this, getString(R.string.why_we_are_asking), Toast.LENGTH_LONG);
                 TextView textView = (TextView) toast.getView().findViewById(android.R.id.message);
-                textView.setBackgroundColor(Color.parseColor("#A6757575"));
                 textView.setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT);
                 textView.setTextColor(Color.parseColor("#E0E0E0"));
                 toast.show();
@@ -138,6 +137,7 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                             if (preferences.getInt("country", 0) == 0){
                                 Intent i = new Intent(setupActivity.this, ChooseCountryActivity.class);
                                 startActivity(i);
+                                finish();
                             }
                             else {
                                 Intent i = new Intent(setupActivity.this, MainActivity.class);
@@ -152,6 +152,7 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                             dialog.dismiss();
                         }
                     });
+                    builder.create().show();
                 } else {
                     Handler handler = new Handler();
                     handler.post(new Runnable() {
@@ -168,6 +169,7 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                     if (preferences.getInt("country", 0) == 0){
                         Intent i = new Intent(setupActivity.this, ChooseCountryActivity.class);
                         startActivity(i);
+                        finish();
                     }
                     else {
                         Intent i = new Intent(setupActivity.this, MainActivity.class);
@@ -373,13 +375,19 @@ public class setupActivity extends AppCompatActivity implements paymentMethodRet
                 } else {
                     view = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_text_and_pic, parent, false);
                     final ImageView icon = (ImageView) view.findViewById(R.id.item_icon);
-                    icon.post(new Runnable() {
+                    new AsyncTask<Integer, Void, Bitmap>() {
                         @Override
-                        public void run() {
-                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(),methodTypes.get(position).getPicId());
-                            icon.setImageBitmap(Bitmap.createScaledBitmap(bitmap,120,120,false));
+                        protected Bitmap doInBackground(Integer... params) {
+                            return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), params[0]),120,120,false);
                         }
-                    });
+
+                        @Override
+                        protected void onPostExecute(Bitmap bitmap) {
+                            super.onPostExecute(bitmap);
+                            icon.setImageBitmap(bitmap);
+                            YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_mediumAnimTime)).playOn(icon);
+                        }
+                    }.execute(methodTypes.get(position).getPicId());
                     TextView name = (TextView) view.findViewById(R.id.item_text);
                     name.setText(methodTypes.get(position).getName());
                 }

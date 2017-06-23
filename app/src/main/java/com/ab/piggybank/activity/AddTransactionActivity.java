@@ -375,15 +375,25 @@ public class AddTransactionActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            Intent i = new Intent(this, MainActivity.class);
-            startActivity(i);
-            finish();
+            back();
         }
 
         if (item.getItemId() == R.id.done) {
             done();
         }
         return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        back();
+    }
+
+    private void back(){
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        finish();
     }
 
     private void updateDateText() {
@@ -650,19 +660,31 @@ public class AddTransactionActivity extends AppCompatActivity {
     }
 
     private void updateMethodIcon(int pos) {
-        ImageView icon = (ImageView) findViewById(R.id.methodIcon);
+        final ImageView icon = (ImageView) findViewById(R.id.methodIcon);
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         Cursor cursor = dbHelper.getMethodTable();
         Log.i("updateMethodIcon: ", String.valueOf(pos));
         cursor.moveToPosition(pos);
-        Utils utils = new Utils();
-        if (cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT)) != -1) {
+        final Utils utils = new Utils();
+        final int id = cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT));
+        new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+                if (id != -1) {
 
-            icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.paymentMethodIcons()[cursor.getInt(cursor.getColumnIndexOrThrow(dbHelper.COLUMN_METHOD_TYPE_AFTER_SORT))]), 120, 120, false));
-        } else {
-            icon.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.cash), 120, 120, false));
-        }
-        YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_longAnimTime));
+                    return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), utils.paymentMethodIcons()[id]), 120, 120, false);
+                } else {
+                    return Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.cash), 120, 120, false);
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                icon.setImageBitmap(bitmap);
+                YoYo.with(Techniques.FadeIn).duration(getResources().getInteger(android.R.integer.config_longAnimTime));
+            }
+        }.execute();
+
     }
 
     private void done() {

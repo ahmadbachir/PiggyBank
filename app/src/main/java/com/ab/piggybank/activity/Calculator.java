@@ -69,26 +69,36 @@ public class Calculator extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            if (isDebt) {
-                Intent i = new Intent(this, AddDebtTransaction.class);
-                if (getIntent().getExtras() != null) {
-                    i.putExtras(getIntent().getExtras());
-                }
-                startActivity(i);
-                finish();
-            } else {
-                Intent i = new Intent(this, AddTransactionActivity.class);
-                if (getIntent().getExtras() != null) {
-                    i.putExtras(getIntent().getExtras());
-                }
-                startActivity(i);
-                finish();
-            }
+           back();
         }
         if (id == R.id.done) {
             onDone();
         }
         return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        back();
+    }
+
+    private void back(){
+        if (isDebt) {
+            Intent i = new Intent(this, AddDebtTransaction.class);
+            if (getIntent().getExtras() != null) {
+                i.putExtras(getIntent().getExtras());
+            }
+            startActivity(i);
+            finish();
+        } else {
+            Intent i = new Intent(this, AddTransactionActivity.class);
+            if (getIntent().getExtras() != null) {
+                i.putExtras(getIntent().getExtras());
+            }
+            startActivity(i);
+            finish();
+        }
     }
 
     /*** Deprecated

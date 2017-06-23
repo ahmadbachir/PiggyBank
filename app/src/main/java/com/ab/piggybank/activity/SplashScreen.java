@@ -43,18 +43,22 @@ public class SplashScreen extends AppCompatActivity {
                 if (!preferences.getBoolean("finishedsetupslide", false)) {
                     Intent i = new Intent(getApplicationContext(), SetupSlideActivity.class);
                     startActivity(i);
+                    finish();
                 } else {
                     DatabaseHelper dbHelper = new DatabaseHelper(SplashScreen.this);
                     if (dbHelper.getMethodTable().getCount() == 0) {
                         Intent i = new Intent(SplashScreen.this, setupActivity.class);
                         startActivity(i);
+                        finish();
                     } else if(preferences.getInt("country", 0) == 0) {
                         Intent i = new Intent(SplashScreen.this, ChooseCountryActivity.class);
                         startActivity(i);
+                        finish();
                     }
                     else {
                         Intent i = new Intent(SplashScreen.this,MainActivity.class);
                         startActivity(i);
+                        finish();
                     }
                 }
 

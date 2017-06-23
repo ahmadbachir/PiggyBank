@@ -34,75 +34,60 @@
         </activity>
         <activity
             android:name=".activity.MainActivity"
-            android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.SetupSlideActivity"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/introActivity" />
         <activity
             android:name=".activity.setup1.setupActivity"
-            android:exported="true"
             android:label="@string/title_activity_setup"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.ChooseCountryActivity"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_choose_country"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.AddTransactionActivity"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_add_transaction"
             android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.MainActivity" />
         </activity>
         <activity
             android:name=".activity.Calculator"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_calculator"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".Category"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_category"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.DetailTransaction"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_detail_transaction"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.MainDebtActivity"
-            android:exported="true"
             android:label="@string/title_activity_main_debt"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.DetailDebtActivity"
-            android:exported="true"
             android:label="@string/title_activity_detail_debt"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.AddDebtTransaction"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_add_debt_transaction"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.RestoreRelationships"
-            android:exported="true"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_restore_relationships"
             android:theme="@style/AppTheme" />
@@ -110,7 +95,6 @@
             android:name=".EditPaymentMethods"
             android:label="@string/title_activity_edit_payment_methods"
             android:screenOrientation="sensorPortrait"
-            android:exported="true"
             android:theme="@style/AppTheme"/>
     </application>
 

@@ -62,14 +62,23 @@ public class Category extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            Intent i = new Intent(this, AddTransactionActivity.class);
-            if (getIntent().getExtras() != null) {
-                i.putExtras(getIntent().getExtras());
-            }
-            startActivity(i);
-
+            back();
         }
         return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        back();
+    }
+
+    private void back(){
+        Intent i = new Intent(this, AddTransactionActivity.class);
+        if (getIntent().getExtras() != null) {
+            i.putExtras(getIntent().getExtras());
+        }
+        startActivity(i);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

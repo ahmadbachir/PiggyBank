@@ -526,10 +526,10 @@
     <string name="title_activity_add_debt_transaction">Add a debt transaction</string>
     <string name="description">Description</string>
     <string name="need_desc_to_proceed">You need to add a description to proceed.</string>
-    <string name="ingoing_or_outgoing">Ingoing or outgoing?</string>
-    <string name="ingoing">Ingoing</string>
+    <string name="ingoing_or_outgoing">Incoming or outgoing?</string>
+    <string name="ingoing">Incoming</string>
     <string name="outgoing">Outgoing</string>
-    <string name="choose_ingoing_outgoing">You need to choose if your transaction is ingoing or outgoing.</string>
+    <string name="choose_ingoing_outgoing">You need to choose if your transaction is incoming or outgoing.</string>
     <string name="deleted">Deleted</string>
     <string name="restore_relationships">Restore Relationships</string>
     <string name="title_activity_restore_relationships">Restore Deleted Relationships</string>
@@ -550,7 +550,9 @@
     <string name="restore_methods">Restore methods</string>
     <string name="couldnt_get_method">We couldn\'t get the payment method you used for this transaction because you might have deleted it.</string>
     <string name="main_activity_banner_ad">ca-app-pub-9146413012265377/3369371444</string>
+    <string name="main_debt_activity_banner_ad">ca-app-pub-9146413012265377/8759013046</string>
     <string name="add_transaction_banner_ad">ca-app-pub-9146413012265377/7040214644</string>
+    <string name="add_debt_transaction_banner_ad">ca-app-pub-9146413012265377/8479811441</string>
     <string name="detail_transaction_banner_ad">ca-app-pub-9146413012265377/4520080246</string>
     <string name="currency_conversion_disabled">Currnecy conversion is disabled for this session, please connect to the internet and restart PiggyBank to enable it.</string>
     <string name="main_tutorial_1_text_1">Welcome to PiggyBank.   Let me show you around.</string>
@@ -565,6 +567,9 @@
     <string name="add_transaction_2">To add the amount, tap the amount number.</string>
     <string name="add_debt_transaction_1">This is the page where you add your debt transactions. Tap the screen to proceed.</string>
     <string name="add_debt_transaction_5">When it comes to debt, you won\'t be using categories. Instead you will be describing the debt transaction ex.(New Glasses, restaurant tab).</string>
+    <string name="we_hope_you_enjoy_using_piggybank">We hope you enjoy using PiggyBank!</string>
+    <string name="add_debt_transaction_6">Another thing about debt is that you will have to choose who your debt transaction was with. Here is the dropdown menu of your debt relationships.</string>
+    <string name="add_debt_transaction_7">Here is where you choose the type of debt, is it incoming (meaning that the person owes you money) or outgoing (meaning that you owe the person money)?</string>
 
 
 </resources>

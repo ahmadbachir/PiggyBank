@@ -66,14 +66,17 @@ public class SetupSlideActivity extends MaterialIntroActivity {
         if (databaseHelper.getMethodTable().getCount() == 0) {
             Intent i = new Intent(this, setupActivity.class);
             startActivity(i);
+            finish();
         }
         else if(preferences.getInt("country",-1) == -1) {
             Intent i = new Intent(this, ChooseCountryActivity.class);
             startActivity(i);
+            finish();
         }
         else {
             Intent i = new Intent(this,MainActivity.class);
             startActivity(i);
+            finish();
         }
         preferences.edit().putBoolean("finishedsetupslide", true).apply();
 
